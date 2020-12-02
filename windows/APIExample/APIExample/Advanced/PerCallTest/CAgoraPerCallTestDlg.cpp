@@ -81,6 +81,7 @@ bool CAgoraPerCallTestDlg::InitAgora()
 	std::string strAppID = GET_APP_ID;
 	context.appId = strAppID.c_str();
 	context.eventHandler = &m_eventHandler;
+    context.channelProfile = CHANNEL_PROFILE_LIVE_BROADCASTING;
 	//initialize the Agora RTC engine context.
 	int ret = m_rtcEngine->initialize(context);
 	m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("initialize rtc engine"));
