@@ -20,8 +20,10 @@ import io.agora.api.example.R;
 import io.agora.api.example.annotation.Example;
 import io.agora.api.example.common.BaseFragment;
 import io.agora.api.example.common.model.StatisticsInfo;
+import io.agora.rtc2.Constants;
 import io.agora.rtc2.IRtcEngineEventHandler;
 import io.agora.rtc2.RtcEngine;
+import io.agora.rtc2.RtcEngineConfig;
 import io.agora.rtc2.internal.LastmileProbeConfig;
 
 import static io.agora.api.example.common.model.Examples.ADVANCED;
@@ -68,14 +70,28 @@ public class PreCallTest extends BaseFragment implements View.OnClickListener {
             return;
         }
         try {
-            /**Creates an RtcEngine instance.
-             * @param context The context of Android Activity
-             * @param appId The App ID issued to you by Agora. See <a href="https://docs.agora.io/en/Agora%20Platform/token#get-an-app-id">
-             *              How to get the App ID</a>
-             * @param handler IRtcEngineEventHandler is an abstract class providing default implementation.
-             *                The SDK uses this class to report to the app on SDK runtime events.*/
-            String appId = getString(R.string.agora_app_id);
-            engine = RtcEngine.create(getContext().getApplicationContext(), appId, iRtcEngineEventHandler);
+            RtcEngineConfig config = new RtcEngineConfig();
+            /**
+             * The context of Android Activity
+             */
+            config.mContext = context.getApplicationContext();
+            /**
+             * The App ID issued to you by Agora. See <a href="https://docs.agora.io/en/Agora%20Platform/token#get-an-app-id"> How to get the App ID</a>
+             */
+            config.mAppId = getString(R.string.agora_app_id);
+            /** Sets the channel profile of the Agora RtcEngine.
+             CHANNEL_PROFILE_COMMUNICATION(0): (Default) The Communication profile.
+             Use this profile in one-on-one calls or group calls, where all users can talk freely.
+             CHANNEL_PROFILE_LIVE_BROADCASTING(1): The Live-Broadcast profile. Users in a live-broadcast
+             channel have a role as either broadcaster or audience. A broadcaster can both send and receive streams;
+             an audience can only receive streams.*/
+            config.mChannelProfile = Constants.CHANNEL_PROFILE_LIVE_BROADCASTING;
+            /**
+             * IRtcEngineEventHandler is an abstract class providing default implementation.
+             * The SDK uses this class to report to the app on SDK runtime events.
+             */
+            config.mEventHandler = iRtcEngineEventHandler;
+            engine = RtcEngine.create(config);
         }
         catch (Exception e) {
             e.printStackTrace();
