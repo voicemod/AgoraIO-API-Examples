@@ -18,7 +18,7 @@ import io.agora.api.example.examples.advanced.CustomRemoteVideoRender;
 import io.agora.api.example.examples.advanced.HostAcrossChannel;
 import io.agora.api.example.examples.advanced.InCallReport;
 import io.agora.api.example.examples.advanced.JoinMultipleChannel;
-//import io.agora.api.example.examples.advanced.MediaPlayerKit;
+import io.agora.api.example.examples.advanced.MediaPlayer;
 import io.agora.api.example.examples.advanced.PlayAudioFiles;
 import io.agora.api.example.examples.advanced.PreCallTest;
 import io.agora.api.example.examples.advanced.ProcessRawData;
@@ -95,9 +95,9 @@ public class ExampleActivity extends AppCompatActivity {
             case R.id.action_mainFragment_to_PlayAudioFiles:
                 fragment = new PlayAudioFiles();
                 break;
-//            case R.id.action_mainFragment_to_MediaPlayerKit:
-//                fragment = new MediaPlayerKit();
-//                break;
+            case R.id.action_mainFragment_to_MediaPlayer:
+                fragment = new MediaPlayer();
+                break;
             case R.id.action_mainFragment_to_RTMPInjection:
                 fragment = new RTMPInjection();
                 break;
