@@ -195,6 +195,7 @@ bool CAgoraRtmpStreamingDlg::InitAgora()
 	std::string strAppID = GET_APP_ID;
 	context.appId = strAppID.c_str();
 	context.eventHandler = &m_eventHandler;
+    context.channelProfile = CHANNEL_PROFILE_LIVE_BROADCASTING;
 	//initialize the Agora RTC engine context.  
 	int ret = m_rtcEngine->initialize(context);
 	if (ret != 0) {
@@ -210,8 +211,6 @@ bool CAgoraRtmpStreamingDlg::InitAgora()
 	//enable video in the engine.
 	m_rtcEngine->enableVideo();
 	m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("enable video"));
-	//set channel profile in the engine to the CHANNEL_PROFILE_LIVE_BROADCASTING.
-	m_rtcEngine->setChannelProfile(CHANNEL_PROFILE_LIVE_BROADCASTING);
 	m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("live broadcasting"));
 	//set client role in the engine to the CLIENT_ROLE_BROADCASTER.
 	m_rtcEngine->setClientRole(CLIENT_ROLE_BROADCASTER);
@@ -340,8 +339,9 @@ void CAgoraRtmpStreamingDlg::OnBnClickedButtonJoinchannel()
 
 		std::string szChannelId = cs2utf8(strChannelName);
 		//join channel in the engine.
-		if (0 == m_rtcEngine->joinChannel(APP_TOKEN, szChannelId.c_str(), "", 0)) {
+		if (0 == m_rtcEngine->joinChannel(APP_TOKEN, szChannelId.c_str(), "", 123)) {
 			m_btnJoinChannel.EnableWindow(FALSE);
+			OnEIDUserJoined(123, 0);
 		}
 	}
 	else {
@@ -459,7 +459,7 @@ LRESULT CAgoraRtmpStreamingDlg::OnEIDUserJoined(WPARAM wParam, LPARAM lParam)
 	p[m_liveTransCoding.userCount - 1] = tanrsCodingUser;
 	for (size_t i = 0; i < m_liveTransCoding.userCount; i++)
 	{
-		p[i].x = tanrsCodingUser.width;
+		p[i].x = i * tanrsCodingUser.width;
 	}
 	//add user info to TranscodingUsers.
 	m_liveTransCoding.transcodingUsers = p;

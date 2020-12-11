@@ -65,6 +65,7 @@ void CAgoraPerCallTestDlg::InitCtrlText()
 	m_btnVideoTest.SetWindowText(PerCallTestCtrlStartTest);
 }
 
+
 //Initialize the Agora SDK
 bool CAgoraPerCallTestDlg::InitAgora()
 {
@@ -80,6 +81,7 @@ bool CAgoraPerCallTestDlg::InitAgora()
 	std::string strAppID = GET_APP_ID;
 	context.appId = strAppID.c_str();
 	context.eventHandler = &m_eventHandler;
+    context.channelProfile = CHANNEL_PROFILE_LIVE_BROADCASTING;
 	//initialize the Agora RTC engine context.
 	int ret = m_rtcEngine->initialize(context);
 	m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("initialize rtc engine"));
@@ -98,6 +100,8 @@ bool CAgoraPerCallTestDlg::InitAgora()
 	m_videoDeviceManager = new AVideoDeviceManager(m_rtcEngine);
 	return true;
 }
+
+
 
 void CAgoraPerCallTestDlg::UnInitAgora()
 {
@@ -227,6 +231,14 @@ LRESULT CAgoraPerCallTestDlg::OnEIDLastmileQuality(WPARAM wparam, LPARAM lparam)
 	return TRUE;
 }
 
+/*!
+* @brief  
+* @author LC
+* @date   2020/11/4 
+* @param  WPARAM wparam  
+* @param  LPARAM lparam  
+* @return     LRESULT  
+*/
 LRESULT CAgoraPerCallTestDlg::OnEIDLastmileProbeResult(WPARAM wparam, LPARAM lparam)
 {
 	m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("OnLastmileProbeResult"));
