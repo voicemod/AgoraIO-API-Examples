@@ -87,6 +87,22 @@ public:
     {
         return true;
     }
+    virtual bool onMediaPlayerVideoFrame(VideoFrame& videoFrame, int mediaPlayerId) override {
+        return true;
+    }
+    
+    virtual bool onTranscodedVideoFrame(VideoFrame& videoFrame) override {
+        return true;
+    }
+    
+    virtual bool onSecondaryScreenCaptureVideoFrame(VideoFrame& videoFrame) override {
+        return true;
+    }
+    
+    virtual bool onSecondaryCameraCaptureVideoFrame(VideoFrame& videoFrame) override {
+        return true;
+    }
+    
     
     virtual bool onRenderVideoFrame(agora::rtc::uid_t uid, agora::rtc::conn_id_t connectionId, VideoFrame &videoFrame) override
     {

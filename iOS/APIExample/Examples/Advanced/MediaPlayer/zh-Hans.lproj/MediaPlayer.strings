@@ -37,3 +37,7 @@
 
 /* Class = "UIButton"; normalTitle = "Play"; ObjectID = "vdv-zd-3aD"; */
 "vdv-zd-3aD.normalTitle" = "播放";
+
+/* Class = "UIButton"; normalTitle = "Play"; ObjectID = "0PG-cP-mcj"; */
+"0PG-cP-mcj.normalTitle" = "恢复";
+

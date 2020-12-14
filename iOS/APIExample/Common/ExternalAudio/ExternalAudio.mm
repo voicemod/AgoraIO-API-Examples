@@ -283,7 +283,8 @@ static ExternalAudioFrameObserver* s_audioFrameObserver;
         }
     }
     else {
-        [self.agoraKit pushExternalAudioFrameRawData:data sourceId:self.sourceNumber timestamp:0];
+        [self.agoraKit pushExternalAudioFrameNSData:[NSData dataWithBytes:data length:bytesLength] sourceId:self.sourceNumber timestamp:0];
+//        [self.agoraKit pushExternalAudioFrameRawData:data sourceId:self.sourceNumber timestamp:0];
     }
     
 }
