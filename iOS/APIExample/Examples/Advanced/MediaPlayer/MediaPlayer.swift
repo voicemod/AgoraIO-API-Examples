@@ -8,6 +8,8 @@
 import UIKit
 import AGEVideoLayout
 import AgoraRtcKit
+//TODO
+//#if false
 
 class MediaPlayerEntry : UIViewController
 {
@@ -139,6 +141,7 @@ class MediaPlayerMain: BaseViewController {
         channelMediaOptions.publishMediaPlayerVideoTrack = true
         channelMediaOptions.publishMediaPlayerAudioTrack = true
         mediaPlayerKit.play()
+        self.mediaPlayerKit.setView(self.localVideo.videoView)
         self.agoraKit.updateChannel(with: channelMediaOptions)
     }
     
@@ -310,10 +313,11 @@ extension MediaPlayerMain: AgoraRtcMediaPlayerDelegate
                 videoCanvas.renderMode = .hidden
                 videoCanvas.sourceType = .mediaPlayer
                 videoCanvas.sourceId = weakself.mediaPlayerKit.getMediaPlayerId()
+                weakself.mediaPlayerKit.setView(weakself.localVideo.videoView)
                 weakself.agoraKit.setupLocalVideo(videoCanvas)
                 break
             case .stopped:
-                weakself.playerControlStack.isHidden = false
+                weakself.playerControlStack.isHidden = true
 //                weakself.stopProgressTimer()
                 break
             case .opening: break
@@ -341,3 +345,4 @@ extension MediaPlayerMain: AgoraRtcMediaPlayerDelegate
         }
     }
 }
+//#endif
