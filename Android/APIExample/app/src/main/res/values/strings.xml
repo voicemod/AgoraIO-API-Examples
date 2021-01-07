@@ -105,7 +105,7 @@
     <string name="switchcamerascreen">This example demonstrates how video can be flexibly switched between the camera stream and the screen share stream during an audio-video call.</string>
     <string name="videometadata">This example demonstrates how to send meta information along with video frames during audio and video calls.</string>
     <string name="geofencing">This example demonstrates how to use Area Code to enable SDK geographical fencing feature.</string>
-    <string name="setaudioprofile">This example demonstrates how to use audio profile and audio scenario to adjust audio configurations.</string>
+    <string name="setaudioprofile">This example demonstrates how to use audio profile to adjust audio configurations.</string>
     <string name="playaudiofiles">This example demonstrates how to play and manage audio effect and audio mixing files.</string>
     <string name="voiceeffects">This example demonstrates how to use embedded audio effects in SDK.</string>
     <string name="mediaplayer">This example demonstrates how to use MediaPlayer. It is one of components for Agora SDK.</string>

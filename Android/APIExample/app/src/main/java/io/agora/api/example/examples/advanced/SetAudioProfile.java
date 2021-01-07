@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -37,7 +38,7 @@ import static io.agora.api.example.common.model.Examples.ADVANCED;
         actionId = R.id.action_mainFragment_to_SetAudioProfile,
         tipsId = R.string.setaudioprofile
 )
-public class SetAudioProfile extends BaseFragment implements View.OnClickListener{
+public class SetAudioProfile extends BaseFragment implements View.OnClickListener, AdapterView.OnItemSelectedListener{
     private static final String TAG = JoinChannelAudio.class.getSimpleName();
     private Spinner audioProfileInput;
     private Spinner audioScenarioInput;
@@ -46,6 +47,7 @@ public class SetAudioProfile extends BaseFragment implements View.OnClickListene
     private RtcEngine engine;
     private int myUid;
     private boolean joined = false;
+    private String mLastAudioScenario = "DEFAULT";
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState)
@@ -70,6 +72,7 @@ public class SetAudioProfile extends BaseFragment implements View.OnClickListene
         et_channel = view.findViewById(R.id.et_channel);
         audioProfileInput = view.findViewById(R.id.audio_profile_spinner);
         audioScenarioInput = view.findViewById(R.id.audio_scenario_spinner);
+        audioScenarioInput.setOnItemSelectedListener(this);
         view.findViewById(R.id.btn_join).setOnClickListener(this);
         mute = view.findViewById(R.id.btn_mute);
         mute.setOnClickListener(this);
@@ -87,36 +90,8 @@ public class SetAudioProfile extends BaseFragment implements View.OnClickListene
         {
             return;
         }
-        try
-        {
-            RtcEngineConfig config = new RtcEngineConfig();
-            /**
-             * The context of Android Activity
-             */
-            config.mContext = context.getApplicationContext();
-            /**
-             * The App ID issued to you by Agora. See <a href="https://docs.agora.io/en/Agora%20Platform/token#get-an-app-id"> How to get the App ID</a>
-             */
-            config.mAppId = getString(R.string.agora_app_id);
-            /** Sets the channel profile of the Agora RtcEngine.
-             CHANNEL_PROFILE_COMMUNICATION(0): (Default) The Communication profile.
-             Use this profile in one-on-one calls or group calls, where all users can talk freely.
-             CHANNEL_PROFILE_LIVE_BROADCASTING(1): The Live-Broadcast profile. Users in a live-broadcast
-             channel have a role as either broadcaster or audience. A broadcaster can both send and receive streams;
-             an audience can only receive streams.*/
-            config.mChannelProfile = Constants.CHANNEL_PROFILE_LIVE_BROADCASTING;
-            /**
-             * IRtcEngineEventHandler is an abstract class providing default implementation.
-             * The SDK uses this class to report to the app on SDK runtime events.
-             */
-            config.mEventHandler = iRtcEngineEventHandler;
-            engine = RtcEngine.create(config);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            getActivity().onBackPressed();
-        }
+        int defaultAudioScenario = Constants.AudioScenario.valueOf(audioScenarioInput.getSelectedItem().toString()).ordinal();
+        createRtcEngine(defaultAudioScenario);
     }
 
     @Override
@@ -226,8 +201,7 @@ public class SetAudioProfile extends BaseFragment implements View.OnClickListene
             accessToken = null;
         }
         int profile = Constants.AudioProfile.valueOf(audioProfileInput.getSelectedItem().toString()).ordinal();
-        int scenario = Constants.AudioScenario.valueOf(audioScenarioInput.getSelectedItem().toString()).ordinal();
-        engine.setAudioProfile(profile, scenario);
+        engine.setAudioProfile(profile);
         /** Allows a user to join a channel.
          if you do not specify the uid, we will generate the uid for you*/
         int res = engine.joinChannel(accessToken, channelId, "Extra Optional Data", 0);
@@ -371,4 +345,50 @@ public class SetAudioProfile extends BaseFragment implements View.OnClickListene
             showLongToast(String.format("user %d offline! reason:%d", uid, reason));
         }
     };
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        if (!TextUtils.equals(mLastAudioScenario, audioScenarioInput.getItemAtPosition(position).toString())) {
+            Log.e(TAG, "audioScenario changed, need to reCreate RtcEngine");
+            RtcEngine.destroy();
+            int audioScenario = Constants.AudioScenario.valueOf(audioScenarioInput.getSelectedItem().toString()).ordinal();
+            createRtcEngine(audioScenario);
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+
+    private void createRtcEngine(int audioScenario){
+        RtcEngineConfig config = new RtcEngineConfig();
+        /**
+         * The context of Android Activity
+         */
+        config.mContext = getContext().getApplicationContext();
+        /**
+         * The App ID issued to you by Agora. See <a href="https://docs.agora.io/en/Agora%20Platform/token#get-an-app-id"> How to get the App ID</a>
+         */
+        config.mAppId = getString(R.string.agora_app_id);
+        /** Sets the channel profile of the Agora RtcEngine.
+         CHANNEL_PROFILE_COMMUNICATION(0): (Default) The Communication profile.
+         Use this profile in one-on-one calls or group calls, where all users can talk freely.
+         CHANNEL_PROFILE_LIVE_BROADCASTING(1): The Live-Broadcast profile. Users in a live-broadcast
+         channel have a role as either broadcaster or audience. A broadcaster can both send and receive streams;
+         an audience can only receive streams.*/
+        config.mChannelProfile = Constants.CHANNEL_PROFILE_LIVE_BROADCASTING;
+        /**
+         * IRtcEngineEventHandler is an abstract class providing default implementation.
+         * The SDK uses this class to report to the app on SDK runtime events.
+         */
+        config.mEventHandler = iRtcEngineEventHandler;
+        config.mAudioScenario = audioScenario;
+        try {
+            engine = RtcEngine.create(config);
+        } catch (Exception e) {
+            e.printStackTrace();
+            getActivity().onBackPressed();
+        }
+    }
 }
