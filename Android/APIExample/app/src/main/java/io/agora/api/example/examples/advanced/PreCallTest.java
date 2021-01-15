@@ -91,7 +91,7 @@ public class PreCallTest extends BaseFragment implements View.OnClickListener {
              * The SDK uses this class to report to the app on SDK runtime events.
              */
             config.mEventHandler = iRtcEngineEventHandler;
-            config.mAudioScenario = Constants.AudioScenario.getValue(Constants.AudioScenario.DEFAULT);
+            config.mAudioScenario = Constants.AudioScenario.getValue(Constants.AudioScenario.HIGH_DEFINITION);
             engine = RtcEngine.create(config);
         }
         catch (Exception e) {
