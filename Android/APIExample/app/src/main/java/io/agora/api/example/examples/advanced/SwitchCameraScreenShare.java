@@ -347,8 +347,8 @@ public class SwitchCameraScreenShare extends BaseFragment implements View.OnClic
                 ORIENTATION_MODE_ADAPTIVE
         ));
         /**Set up to play remote sound with receiver*/
-        ENGINE.setDefaultAudioRoutetoSpeakerphone(false);
-        ENGINE.setEnableSpeakerphone(false);
+        ENGINE.setDefaultAudioRoutetoSpeakerphone(true);
+        ENGINE.setEnableSpeakerphone(true);
 
         /**Please configure accessToken in the string_config file.
          * A temporary token generated in Console. A temporary token is valid for 24 hours. For details, see

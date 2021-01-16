@@ -255,8 +255,9 @@ public class VideoQuickSwitch extends BaseFragment
             return;
         }
 
-        // Set audio route to speaker
+        /**Set up to play remote sound with receiver*/
         engine.setDefaultAudioRoutetoSpeakerphone(true);
+        engine.setEnableSpeakerphone(true);
         /** Sets the channel profile of the Agora RtcEngine.
          CHANNEL_PROFILE_COMMUNICATION(0): (Default) The Communication profile.
          Use this profile in one-on-one calls or group calls, where all users can talk freely.
@@ -275,9 +276,6 @@ public class VideoQuickSwitch extends BaseFragment
                 STANDARD_BITRATE,
                 ORIENTATION_MODE_ADAPTIVE
         ));
-        /**Set up to play remote sound with receiver*/
-        engine.setDefaultAudioRoutetoSpeakerphone(false);
-        engine.setEnableSpeakerphone(false);
 
         /**Please configure accessToken in the string_config file.
          * A temporary token generated in Console. A temporary token is valid for 24 hours. For details, see

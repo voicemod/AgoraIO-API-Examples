@@ -243,8 +243,8 @@ public class VideoMetadata extends BaseFragment implements View.OnClickListener
                 ORIENTATION_MODE_ADAPTIVE
         ));
         /**Set up to play remote sound with receiver*/
-        engine.setDefaultAudioRoutetoSpeakerphone(false);
-        engine.setEnableSpeakerphone(false);
+        engine.setDefaultAudioRoutetoSpeakerphone(true);
+        engine.setEnableSpeakerphone(true);
 
         /**register metadata observer
          * @return 0：Success

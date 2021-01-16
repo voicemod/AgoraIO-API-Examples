@@ -317,8 +317,8 @@ public class SwitchExternalVideo extends BaseFragment implements View.OnClickLis
         ENGINE.enableVideo();
         ENGINE.setExternalVideoSource(true, true, false);
         /**Set up to play remote sound with receiver*/
-        ENGINE.setDefaultAudioRoutetoSpeakerphone(false);
-        ENGINE.setEnableSpeakerphone(false);
+        ENGINE.setDefaultAudioRoutetoSpeakerphone(true);
+        ENGINE.setEnableSpeakerphone(true);
 
         /**Please configure accessToken in the string_config file.
          * A temporary token generated in Console. A temporary token is valid for 24 hours. For details, see

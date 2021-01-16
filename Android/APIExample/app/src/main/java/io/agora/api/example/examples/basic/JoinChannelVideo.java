@@ -207,7 +207,7 @@ public class JoinChannelVideo extends BaseFragment implements View.OnClickListen
         // Setup local video to render your local camera preview
         engine.setupLocalVideo(new VideoCanvas(surfaceView, RENDER_MODE_HIDDEN, 0));
         // Set audio route to microPhone
-        engine.setDefaultAudioRoutetoSpeakerphone(false);
+        engine.setDefaultAudioRoutetoSpeakerphone(true);
 
         /**In the demo, the default is to enter as the anchor.*/
         engine.setClientRole(IRtcEngineEventHandler.ClientRole.CLIENT_ROLE_BROADCASTER);

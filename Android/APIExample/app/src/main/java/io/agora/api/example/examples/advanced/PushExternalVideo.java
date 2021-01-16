@@ -217,8 +217,8 @@ public class PushExternalVideo extends BaseFragment implements View.OnClickListe
         fl_local.addView(textureView, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
         /**Set up to play remote sound with receiver*/
-        engine.setDefaultAudioRoutetoSpeakerphone(false);
-        engine.setEnableSpeakerphone(false);
+        engine.setDefaultAudioRoutetoSpeakerphone(true);
+        engine.setEnableSpeakerphone(true);
 
         /** Sets the channel profile of the Agora RtcEngine.
          CHANNEL_PROFILE_COMMUNICATION(0): (Default) The Communication profile.

@@ -242,8 +242,8 @@ public class ProcessRawData extends BaseFragment implements View.OnClickListener
                 ORIENTATION_MODE_ADAPTIVE
         ));
         /**Set up to play remote sound with receiver*/
-        engine.setDefaultAudioRoutetoSpeakerphone(false);
-        engine.setEnableSpeakerphone(false);
+        engine.setDefaultAudioRoutetoSpeakerphone(true);
+        engine.setEnableSpeakerphone(true);
 
         /**Please configure accessToken in the string_config file.
          * A temporary token generated in Console. A temporary token is valid for 24 hours. For details, see
