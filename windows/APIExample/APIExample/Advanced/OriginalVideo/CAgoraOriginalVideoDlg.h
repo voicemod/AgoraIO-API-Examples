@@ -183,6 +183,18 @@ public:
 		SDK triggers this callback.
 	 */
 	virtual void onRemoteVideoStateChanged(uid_t uid, REMOTE_VIDEO_STATE state, REMOTE_VIDEO_STATE_REASON reason, int elapsed) override;
+
+	/** Occurs when the connection state of the SDK to the server is changed.
+
+	@param state See #CONNECTION_STATE_TYPE.
+	@param reason See #CONNECTION_CHANGED_REASON_TYPE.
+	*/
+	void onConnectionStateChanged(CONNECTION_STATE_TYPE state, CONNECTION_CHANGED_REASON_TYPE reason)
+	{
+		if (m_hMsgHanlder) {
+			::PostMessage(m_hMsgHanlder, WM_MSGID(EID_CONNECTION_STATE_CHANGED), reason, state);
+		}
+	}
 private:
 	HWND m_hMsgHanlder;
 };
@@ -233,6 +245,8 @@ protected:
 	LRESULT OnEIDUserJoined(WPARAM wParam, LPARAM lParam);
 	LRESULT OnEIDUserOffline(WPARAM wParam, LPARAM lParam);
 	LRESULT OnEIDRemoteVideoStateChanged(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnEIDConnectionStateChanged(WPARAM wParam, LPARAM lParam);
+
 	DECLARE_MESSAGE_MAP()
 public:
 	CStatic m_staVideoArea;

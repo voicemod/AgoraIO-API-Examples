@@ -44,6 +44,8 @@ BEGIN_MESSAGE_MAP(CMultiCameraDlg, CDialogEx)
     ON_BN_CLICKED(IDC_BUTTON_JOINCHANNEL, &CMultiCameraDlg::OnBnClickedButtonJoinchannel)
 	ON_MESSAGE(WM_MSGID(EID_JOINCHANNEL_SUCCESS), &CMultiCameraDlg::OnEIDJoinChannelSuccess)
 	ON_MESSAGE(WM_MSGID(EID_LEAVE_CHANNEL), &CMultiCameraDlg::OnEIDLeaveChannel)
+	ON_MESSAGE(WM_MSGID(EID_CONNECTION_STATE_CHANGED), &CMultiCameraDlg::OnEIDConnectionStateChanged)
+
 	ON_BN_CLICKED(IDC_BUTTON_PUBLISH2, &CMultiCameraDlg::OnBnClickedButtonPublish2)
 	ON_BN_CLICKED(IDC_BUTTON_CAMERA1, &CMultiCameraDlg::OnBnClickedButtonCamera1)
 	ON_BN_CLICKED(IDC_BUTTON_CAMERA2, &CMultiCameraDlg::OnBnClickedButtonCamera2)
@@ -105,7 +107,7 @@ void CMultiCameraDlg::OnBnClickedButtonJoinchannel()
 		optionsCamera.clientRoleType = CLIENT_ROLE_BROADCASTER;//broadcaster
 		
 		// join channel first camera
-		m_rtcEngine->joinChannel(APP_TOKEN, szChannelId.data(), 0, optionsCamera);
+		m_rtcEngine->joinChannel(GET_APP_TOKEN, szChannelId.data(), 0, optionsCamera);
 		m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("joinChannel primary camera"));
 		
 		m_btnJoinChannel.SetWindowText(commonCtrlLeaveChannel);
@@ -140,7 +142,7 @@ void CMultiCameraDlg::OnBnClickedButtonPublish2()
 			options2.publishSecondaryCameraTrack = true;
 			options2.clientRoleType = CLIENT_ROLE_BROADCASTER;
 			// joinChannelEx secondary camera capture(broadcaster)
-			int ret = m_rtcEngine->joinChannelEx(APP_TOKEN, szChannelId.c_str(), 0, options2, &m_camera2EventHandler, &conn_id);
+			int ret = m_rtcEngine->joinChannelEx(GET_APP_TOKEN, szChannelId.c_str(), 0, options2, &m_camera2EventHandler, &conn_id);
 			m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("joinChannelEx secondary camera"));
 			if (0 == ret) {
 				m_conn_camera2 = conn_id;
@@ -251,7 +253,7 @@ bool CMultiCameraDlg::InitAgora()
 	if (ret != 0) {
 		m_initialize = false;
 		CString strInfo;
-		strInfo.Format(_T("initialize failed: %d"), ret);
+		if (ret == -101) m_lstInfo.InsertString(m_lstInfo.GetCount(), InvalidAppidError); strInfo.Format(_T("initialize failed: %d"), ret);
 		m_lstInfo.InsertString(m_lstInfo.GetCount(), strInfo);
 		return false;
 	}
@@ -534,4 +536,39 @@ void CMultiCameraDlg::OnBnClickedButtonCamera2()
 		m_btnCapture2.SetWindowText(MultiCameraStartCapture);
 	}
 	m_bStartCapture2 = !m_bStartCapture2;
+}
+
+LRESULT CMultiCameraDlg::OnEIDConnectionStateChanged(WPARAM wParam, LPARAM lParam)
+{
+	CONNECTION_CHANGED_REASON_TYPE reason = (CONNECTION_CHANGED_REASON_TYPE)wParam;
+	if (reason == CONNECTION_CHANGED_INVALID_TOKEN || reason == CONNECTION_CHANGED_TOKEN_EXPIRED ||
+		reason == CONNECTION_CHANGED_INVALID_CHANNEL_NAME || reason == CONNECTION_CHANGED_REJECTED_BY_SERVER ||
+		reason == CONNECTION_CHANGED_INVALID_APP_ID) {
+
+		CString info = _T("");
+		switch (reason)
+		{
+		case CONNECTION_CHANGED_INVALID_TOKEN:
+		case CONNECTION_CHANGED_INVALID_APP_ID:
+			info = invalidTokenlError;
+			break;
+		case CONNECTION_CHANGED_TOKEN_EXPIRED:
+			info = invalidTokenExpiredError;
+			break;
+		case CONNECTION_CHANGED_INVALID_CHANNEL_NAME:
+			info = invalidChannelError;
+			break;
+		case CONNECTION_CHANGED_REJECTED_BY_SERVER:
+			info = refusedByServer;
+			break;
+		default:
+			break;
+		}
+
+		if (!info.IsEmpty())
+			m_lstInfo.InsertString(m_lstInfo.GetCount(), info);
+
+		m_btnJoinChannel.EnableWindow(TRUE);
+	}
+	return 0;
 }

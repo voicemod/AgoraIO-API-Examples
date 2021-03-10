@@ -39,6 +39,8 @@ BEGIN_MESSAGE_MAP(CAgoraMultiChannelDlg, CDialogEx)
 	ON_MESSAGE(WM_MSGID(EID_USER_JOINED), &CAgoraMultiChannelDlg::OnEIDUserJoined)
 	ON_MESSAGE(WM_MSGID(EID_USER_OFFLINE), &CAgoraMultiChannelDlg::OnEIDUserOffline)
 	ON_MESSAGE(WM_MSGID(EID_REMOTE_VIDEO_STATE_CHANED), &CAgoraMultiChannelDlg::OnEIDRemoteVideoStateChanged)
+	ON_MESSAGE(WM_MSGID(EID_CONNECTION_STATE_CHANGED), &CAgoraMultiChannelDlg::OnEIDConnectionStateChanged)
+
 	ON_BN_CLICKED(IDC_BUTTON_JOINCHANNEL, &CAgoraMultiChannelDlg::OnBnClickedButtonJoinchannel)
 	ON_BN_CLICKED(IDC_BUTTON_LEAVE_CHANNEL, &CAgoraMultiChannelDlg::OnBnClickedButtonLeaveChannel)
 	ON_LBN_SELCHANGE(IDC_LIST_INFO_BROADCASTING, &CAgoraMultiChannelDlg::OnSelchangeListInfoBroadcasting)
@@ -78,7 +80,7 @@ bool CAgoraMultiChannelDlg::InitAgora()
 	if (ret != 0) {
 		m_initialize = false;
 		CString strInfo;
-		strInfo.Format(_T("initialize failed: %d"), ret);
+		if (ret == -101) m_lstInfo.InsertString(m_lstInfo.GetCount(), InvalidAppidError); strInfo.Format(_T("initialize failed: %d"), ret);
 		m_lstInfo.InsertString(m_lstInfo.GetCount(), strInfo);
 		return false;
 	}
@@ -214,7 +216,7 @@ void CAgoraMultiChannelDlg::OnBnClickedButtonJoinchannel()
 	std::string szChannelId = cs2utf8(strChannelName);
 	if (!m_joinChannel) {
 		//join channel in the engine.
-		if (0 == m_rtcEngine->joinChannel(APP_TOKEN, szChannelId.c_str(), "", 0)) {
+		if (0 == m_rtcEngine->joinChannel(GET_APP_TOKEN, szChannelId.c_str(), "", 0)) {
 			//strInfo.Format(_T("join channel %s"), strChannelName);
 			m_btnJoinChannel.EnableWindow(FALSE);
 			m_mapConn.insert(std::make_pair(strChannelName,DEFAULT_CONNECTION_ID));
@@ -232,7 +234,7 @@ void CAgoraMultiChannelDlg::OnBnClickedButtonJoinchannel()
 		p->SetChannelId(m_vecChannelEventHandler.size());
 		p->SetMsgReceiver(GetSafeHwnd());
 		m_vecChannelEventHandler.push_back(p);
-		if (0 == m_rtcEngine->joinChannelEx(APP_TOKEN, szChannelId.c_str(), 0, options, p, &conn_id))
+		if (0 == m_rtcEngine->joinChannelEx(GET_APP_TOKEN, szChannelId.c_str(), 0, options, p, &conn_id))
 		{
 			//strInfo.Format(_T("join channel %d"), conn_id);
 			m_mapConn.insert(std::make_pair(strChannelName, conn_id));
@@ -369,6 +371,40 @@ LRESULT CAgoraMultiChannelDlg::OnEIDRemoteVideoStateChanged(WPARAM wParam, LPARA
 }
 
 
+LRESULT CAgoraMultiChannelDlg::OnEIDConnectionStateChanged(WPARAM wParam, LPARAM lParam)
+{
+	CONNECTION_CHANGED_REASON_TYPE reason = (CONNECTION_CHANGED_REASON_TYPE)wParam;
+	if (reason == CONNECTION_CHANGED_INVALID_TOKEN || reason == CONNECTION_CHANGED_TOKEN_EXPIRED ||
+		reason == CONNECTION_CHANGED_INVALID_CHANNEL_NAME || reason == CONNECTION_CHANGED_REJECTED_BY_SERVER ||
+		reason == CONNECTION_CHANGED_INVALID_APP_ID) {
+
+		CString info = _T("");
+		switch (reason)
+		{
+		case CONNECTION_CHANGED_INVALID_TOKEN:
+		case CONNECTION_CHANGED_INVALID_APP_ID:
+			info = invalidTokenlError;
+			break;
+		case CONNECTION_CHANGED_TOKEN_EXPIRED:
+			info = invalidTokenExpiredError;
+			break;
+		case CONNECTION_CHANGED_INVALID_CHANNEL_NAME:
+			info = invalidChannelError;
+			break;
+		case CONNECTION_CHANGED_REJECTED_BY_SERVER:
+			info = refusedByServer;
+			break;
+		default:
+			break;
+		}
+
+		if (!info.IsEmpty())
+			m_lstInfo.InsertString(m_lstInfo.GetCount(), info);
+
+		m_btnJoinChannel.EnableWindow(TRUE);
+	}
+	return 0;
+}
 /*
 note:
 	Join the channel callback.This callback method indicates that the client

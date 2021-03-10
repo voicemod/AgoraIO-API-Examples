@@ -94,6 +94,17 @@ public:
    */
 	virtual void onRtmpStreamingStateChanged(const char *url, RTMP_STREAM_PUBLISH_STATE state, RTMP_STREAM_PUBLISH_ERROR errCode)override;
 
+	/** Occurs when the connection state of the SDK to the server is changed.
+
+	@param state See #CONNECTION_STATE_TYPE.
+	@param reason See #CONNECTION_CHANGED_REASON_TYPE.
+	*/
+	void onConnectionStateChanged(CONNECTION_STATE_TYPE state, CONNECTION_CHANGED_REASON_TYPE reason)
+	{
+		if (m_hMsgHanlder) {
+			::PostMessage(m_hMsgHanlder, WM_MSGID(EID_CONNECTION_STATE_CHANGED), reason, state);
+		}
+	}
 private:
 	HWND m_hMsgHanlder;
 };
@@ -154,6 +165,8 @@ public:
 	afx_msg LRESULT OnEIDUserOffline(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT OnEIDLeaveChannel(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT OnEIDRtmpStateChanged(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnEIDConnectionStateChanged(WPARAM wParam, LPARAM lParam);
+
 	afx_msg void OnSelchangeListInfoBroadcasting();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 

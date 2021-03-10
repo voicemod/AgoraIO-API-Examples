@@ -38,6 +38,8 @@ BEGIN_MESSAGE_MAP(CLocalVideoTranscodingDlg, CDialogEx)
 	ON_MESSAGE(WM_MSGID(EID_LEAVE_CHANNEL), &CLocalVideoTranscodingDlg::OnEIDLeaveChannel)
 	ON_MESSAGE(WM_MSGID(EID_USER_JOINED), &CLocalVideoTranscodingDlg::OnEIDJoinChannelSuccess)
 	ON_BN_CLICKED(IDC_BUTTON_JOINCHANNEL, &CLocalVideoTranscodingDlg::OnBnClickedButtonJoinchannel)
+	ON_MESSAGE(WM_MSGID(EID_CONNECTION_STATE_CHANGED), &CLocalVideoTranscodingDlg::OnEIDConnectionStateChanged)
+
 	ON_WM_SHOWWINDOW()
 	ON_CBN_SELCHANGE(IDC_COMBO_CAMERAS, &CLocalVideoTranscodingDlg::OnSelchangeComboCameras)
 END_MESSAGE_MAP()
@@ -178,7 +180,7 @@ void CLocalVideoTranscodingDlg::OnBnClickedButtonJoinchannel()
 		agora::rtc::ChannelMediaOptions op;
 		op.publishTrancodedVideoTrack = true;
 		op.clientRoleType = agora::rtc::CLIENT_ROLE_BROADCASTER;
-		if (0 == m_rtcEngine->joinChannel(APP_TOKEN, szChannelId.data(), 0, op)) {
+		if (0 == m_rtcEngine->joinChannel(GET_APP_TOKEN, szChannelId.data(), 0, op)) {
 			strInfo.Format(_T("join channel %s"), strChannelName);
 			m_lstInfo.InsertString(m_lstInfo.GetCount() , strInfo);
 			m_conn_camera = DEFAULT_CONNECTION_ID;
@@ -224,7 +226,7 @@ bool CLocalVideoTranscodingDlg::InitAgora()
 	if (ret != 0) {
 		m_initialize = false;
 		CString strInfo;
-		strInfo.Format(_T("initialize failed: %d"), ret);
+		if (ret == -101) m_lstInfo.InsertString(m_lstInfo.GetCount(), InvalidAppidError); strInfo.Format(_T("initialize failed: %d"), ret);
 		m_lstInfo.InsertString(m_lstInfo.GetCount(), strInfo);
 		return false;
 	}
@@ -459,4 +461,39 @@ void CLocalVideoTranscodingDlg::OnSelchangeComboCameras()
 	// Get camera information
 	collections->getDevice(sel, deviceName, deviceId);
 	(*videoDeviceManager)->setDevice(deviceId);
+}
+
+LRESULT CLocalVideoTranscodingDlg::OnEIDConnectionStateChanged(WPARAM wParam, LPARAM lParam)
+{
+	CONNECTION_CHANGED_REASON_TYPE reason = (CONNECTION_CHANGED_REASON_TYPE)wParam;
+	if (reason == CONNECTION_CHANGED_INVALID_TOKEN || reason == CONNECTION_CHANGED_TOKEN_EXPIRED ||
+		reason == CONNECTION_CHANGED_INVALID_CHANNEL_NAME || reason == CONNECTION_CHANGED_REJECTED_BY_SERVER ||
+		reason == CONNECTION_CHANGED_INVALID_APP_ID) {
+
+		CString info = _T("");
+		switch (reason)
+		{
+		case CONNECTION_CHANGED_INVALID_TOKEN:
+		case CONNECTION_CHANGED_INVALID_APP_ID:
+			info = invalidTokenlError;
+			break;
+		case CONNECTION_CHANGED_TOKEN_EXPIRED:
+			info = invalidTokenExpiredError;
+			break;
+		case CONNECTION_CHANGED_INVALID_CHANNEL_NAME:
+			info = invalidChannelError;
+			break;
+		case CONNECTION_CHANGED_REJECTED_BY_SERVER:
+			info = refusedByServer;
+			break;
+		default:
+			break;
+		}
+
+		if (!info.IsEmpty())
+			m_lstInfo.InsertString(m_lstInfo.GetCount(), info);
+
+		m_btnJoinChannel.EnableWindow(TRUE);
+	}
+	return 0;
 }

@@ -1,5 +1,59 @@
 ﻿#pragma once
 #include "AGVideoWnd.h"
+
+class CVideoSourceObserver :
+	public agora::media::IVideoFrameObserver
+{
+public:
+	CVideoSourceObserver() {  }
+	virtual ~CVideoSourceObserver() {  }
+	/*
+		Obtain video data from the local camera.After successfully registering
+		a video data observer, the SDK triggers this callback when each video
+		frame is captured. You can retrieve the video data from the local camera
+		in the callback, and then pre-process the video data according to the needs
+		of the scene.After the preprocessing is done, you can send the processed
+		video data back to the SDK in this callback.
+		annotations:
+		If the video data type you get is RGBA, Agora does not support sending the
+		processed RGBA data back to the SDK through this callback.
+		parameter:
+		videoFrame :VideoFramedata, see VideoFrame for more details
+		return If the video pre-processing fails,whether to ignore the video frame:
+		True: No ignore.
+		False: Ignored, the frame data is not sent back to the SDK.
+	*/
+	virtual bool onCaptureVideoFrame(VideoFrame& videoFrame);
+	/**
+	 * Occurs each time the SDK receives a video frame sent by the remote user.
+	 *
+	 * After you successfully register the video frame observer, the SDK triggers this callback each time a
+	 * video frame is received. In this callback, you can get the video data sent by the remote user. You
+	 * can then post-process the data according to your scenarios.
+	 *
+	 * After post-processing, you can send the processed data back to the SDK by setting the `videoFrame`
+	 * parameter in this callback.
+	 *
+	 * @param uid ID of the remote user who sends the current video frame.
+	 * @param connectionId ID of the connection.
+	 * @param videoFrame A pointer to the video frame: VideoFrame
+	 * @return Determines whether to ignore the current video frame if the post-processing fails:
+	 * - true: Do not ignore.
+	 * - false: Ignore, in which case this method does not sent the current video frame to the SDK.
+	 */
+	virtual bool onRenderVideoFrame(rtc::uid_t uid, rtc::conn_id_t connectionId,
+		VideoFrame& videoFrame) {
+		return true;
+	}
+
+	virtual bool onScreenCaptureVideoFrame(VideoFrame& videoFrame)override;
+	virtual bool onSecondaryCameraCaptureVideoFrame(VideoFrame& videoFrame)override { return true; }
+	virtual bool onTranscodedVideoFrame(VideoFrame& videoFrame)override { return true; }
+	virtual bool onSecondaryScreenCaptureVideoFrame(VideoFrame& videoFrame) override { return true; }
+	virtual bool onMediaPlayerVideoFrame(VideoFrame& videoFrame, int mediaPlayerId) override { return true; }
+
+};
+
 class CAgoraMultiVideoSourceEventHandler : public agora::rtc::IRtcEngineEventHandler
 {
 public:
@@ -78,6 +132,19 @@ public:
 		SDK triggers this callback.
 	 */
 	virtual void onRemoteVideoStateChanged(agora::rtc::uid_t uid, agora::rtc::REMOTE_VIDEO_STATE state, agora::rtc::REMOTE_VIDEO_STATE_REASON reason, int elapsed) override;
+
+
+	/** Occurs when the connection state of the SDK to the server is changed.
+
+	@param state See #CONNECTION_STATE_TYPE.
+	@param reason See #CONNECTION_CHANGED_REASON_TYPE.
+	*/
+	void onConnectionStateChanged(CONNECTION_STATE_TYPE state, CONNECTION_CHANGED_REASON_TYPE reason)
+	{
+		if (m_hMsgHanlder) {
+			::PostMessage(m_hMsgHanlder, WM_MSGID(EID_CONNECTION_STATE_CHANGED), reason, state);
+		}
+	}
 private:
 	HWND m_hMsgHanlder;
 	std::string m_strChannel;
@@ -124,6 +191,8 @@ private:
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);  
 	// agora sdk message window handler
+	afx_msg LRESULT OnEIDConnectionStateChanged(WPARAM wParam, LPARAM lParam);
+	BOOL RegisterVideoFrameObserver(BOOL bEnable, IVideoFrameObserver * videoFrameObserver);
 	LRESULT OnEIDJoinChannelSuccess(WPARAM wParam, LPARAM lParam);
 	LRESULT OnEIDLeaveChannel(WPARAM wParam, LPARAM lParam);
 	LRESULT OnEIDUserJoined(WPARAM wParam, LPARAM lParam);
@@ -146,4 +215,9 @@ public:
 	afx_msg void OnBnClickedButtonJoinchannel();
 	afx_msg void OnBnClickedButtonPublish();
 	
+
+	CVideoSourceObserver m_observer;
+	
+	CButton m_chkRawVideo;
+	afx_msg void OnBnClickedCheckRawVideo();
 };

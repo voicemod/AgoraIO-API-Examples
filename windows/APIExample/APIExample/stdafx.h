@@ -43,7 +43,7 @@
 #define APP_ID     "<enter your agora app id>"
 
 
-#define APP_TOKEN  ""   
+#define APP_TOKEN  _T("")   
 
 
 #include <IAgoraRtcEngine.h>
@@ -83,7 +83,7 @@ using namespace agora::media;
 #define EID_LOCAL_VIDEO_STATS						0x00000013
 #define EID_CHANNEL_MEDIA_RELAY_STATE_CHNAGENED		0x00000014
 #define EID_CHANNEL_MEDIA_RELAY_EVENT		 		0x00000015
-
+#define EID_CONNECTION_STATE_CHANGED		 		0x00000020
 
 #define EID_CHANNEL_WARN				0x0000000B
 #define EID_CHANNEL_ERROR				0x0000000B
