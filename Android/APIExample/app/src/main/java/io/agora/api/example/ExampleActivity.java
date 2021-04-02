@@ -15,6 +15,7 @@ import io.agora.api.component.Constant;
 import io.agora.api.example.common.model.ExampleBean;
 import io.agora.api.example.examples.advanced.AdjustVolume;
 //import io.agora.api.example.examples.advanced.ChannelEncryption;
+import io.agora.api.example.examples.advanced.Beauty;
 import io.agora.api.example.examples.advanced.CustomRemoteVideoRender;
 import io.agora.api.example.examples.advanced.HostAcrossChannel;
 import io.agora.api.example.examples.advanced.InCallReport;
@@ -147,6 +148,9 @@ public class ExampleActivity extends AppCompatActivity {
                 break;
             case R.id.action_mainFragment_raw_audio:
                 fragment = new ProcessAudioRawData();
+                break;
+            case R.id.action_mainFragment_to_beauty:
+                fragment = new Beauty();
                 break;
             default:
                 fragment = new JoinChannelAudio();
