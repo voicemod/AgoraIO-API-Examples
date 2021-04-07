@@ -26,6 +26,7 @@ import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.runtime.Permission;
 
 import java.io.IOException;
+import java.util.concurrent.Callable;
 
 import io.agora.api.component.gles.ProgramTextureOES;
 import io.agora.api.component.gles.core.EglCore;
@@ -34,8 +35,9 @@ import io.agora.api.example.R;
 import io.agora.api.example.annotation.Example;
 import io.agora.api.example.common.BaseFragment;
 import io.agora.api.example.utils.CommonUtil;
-import io.agora.base.TextureBuffer;
+import io.agora.base.TextureBufferHelper;
 import io.agora.base.VideoFrame;
+import io.agora.base.internal.video.EglBase14;
 import io.agora.base.internal.video.RendererCommon;
 import io.agora.rtc2.Constants;
 import io.agora.rtc2.IRtcEngineEventHandler;
@@ -84,6 +86,7 @@ public class PushExternalVideo extends BaseFragment implements View.OnClickListe
     private int mSurfaceWidth;
     private int mSurfaceHeight;
     private boolean mTextureDestroyed;
+    private TextureBufferHelper mTextureBufferHelper;
 
     @Nullable
     @Override
@@ -305,16 +308,15 @@ public class PushExternalVideo extends BaseFragment implements View.OnClickListe
 
         if (joined) {
             /**about AgoraVideoFrame, see https://docs.agora.io/en/Video/API%20Reference/java/classio_1_1agora_1_1rtc_1_1video_1_1_agora_video_frame.html*/
-            VideoFrame.TextureBuffer buffer = new TextureBuffer(
-                    mEglCore.getEGLContext(),
-                    DEFAULT_CAPTURE_WIDTH,
-                    DEFAULT_CAPTURE_HEIGHT,
-                    VideoFrame.TextureBuffer.Type.OES,
-                    mPreviewTexture,
-                    RendererCommon.convertMatrixToAndroidGraphicsMatrix(mTransform),
-                    null,
-                    null,
-                    null);
+            VideoFrame.Buffer buffer = mTextureBufferHelper.invoke(
+                    new Callable<VideoFrame.Buffer>() {
+                        @Override
+                        public VideoFrame.Buffer call() {
+                            return mTextureBufferHelper.wrapTextureBuffer(
+                                    DEFAULT_CAPTURE_WIDTH, DEFAULT_CAPTURE_HEIGHT, VideoFrame.TextureBuffer.Type.OES,
+                                    mPreviewTexture, RendererCommon.convertMatrixToAndroidGraphicsMatrix(mTransform));
+                        }
+                    });
             VideoFrame frame = new VideoFrame(buffer, 0, System.currentTimeMillis());
             /**Pushes the video frame using the AgoraVideoFrame class and passes the video frame to the Agora SDK.
              * Call the setExternalVideoSource method and set pushMode as true before calling this
@@ -344,6 +346,8 @@ public class PushExternalVideo extends BaseFragment implements View.OnClickListe
         mPreviewSurfaceTexture.setOnFrameAvailableListener(this);
         mDrawSurface = mEglCore.createWindowSurface(surface);
         mProgram = new ProgramTextureOES();
+        mTextureBufferHelper = TextureBufferHelper.create("AgProcess",
+                new EglBase14.Context(mEglCore.getEGLContext()));
         if (mCamera != null || mPreviewing) {
             Log.e(TAG, "Camera preview has been started");
             return;
@@ -383,6 +387,7 @@ public class PushExternalVideo extends BaseFragment implements View.OnClickListe
             mCamera = null;
         }
         mProgram.release();
+        mTextureBufferHelper.dispose();
         mEglCore.releaseSurface(mDummySurface);
         mEglCore.releaseSurface(mDrawSurface);
         mEglCore.release();
