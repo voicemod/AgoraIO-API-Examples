@@ -21,7 +21,8 @@ public:
         True: send
         False: don't send
     */
-	virtual bool onReadyToSendMetadata(Metadata &metadata, VIDEO_SOURCE_TYPE source_type)override;
+	virtual bool onReadyToSendMetadata(Metadata &metadata, agora::rtc::MEDIA_SOURCE_TYPE source_type);
+	
     /*
         The receiver has received Metadata.The SDK triggers the callback when it
         receives Metadata sent by the remote user.
