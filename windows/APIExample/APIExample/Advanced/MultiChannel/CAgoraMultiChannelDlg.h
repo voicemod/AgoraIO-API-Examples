@@ -80,6 +80,19 @@ public:
 		SDK triggers this callback.
 	 */
 	virtual void onRemoteVideoStateChanged(agora::rtc::uid_t uid, agora::rtc::REMOTE_VIDEO_STATE state, agora::rtc::REMOTE_VIDEO_STATE_REASON reason, int elapsed) override;
+
+
+	/** Occurs when the connection state of the SDK to the server is changed.
+
+	@param state See #CONNECTION_STATE_TYPE.
+	@param reason See #CONNECTION_CHANGED_REASON_TYPE.
+	*/
+	void onConnectionStateChanged(CONNECTION_STATE_TYPE state, CONNECTION_CHANGED_REASON_TYPE reason)
+	{
+		if (m_hMsgHanlder) {
+			::PostMessage(m_hMsgHanlder, WM_MSGID(EID_CONNECTION_STATE_CHANGED), reason, state);
+		}
+	}
 private:
 	HWND m_hMsgHanlder;
 	std::string m_strChannel;
@@ -124,6 +137,8 @@ private:
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);   
 	// agora sdk message window handler
+	afx_msg LRESULT OnEIDConnectionStateChanged(WPARAM wParam, LPARAM lParam);
+
 	LRESULT OnEIDJoinChannelSuccess(WPARAM wParam, LPARAM lParam);
 	LRESULT OnEIDLeaveChannel(WPARAM wParam, LPARAM lParam);
 	LRESULT OnEIDUserJoined(WPARAM wParam, LPARAM lParam);

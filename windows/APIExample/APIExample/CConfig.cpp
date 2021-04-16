@@ -73,10 +73,33 @@ CString CConfig::GetAPP_ID()
 	::GetPrivateProfileString(_T("AppID"), _T("AppID"), NULL, szAppid, MAX_PATH, szFilePath);
 	if (_tcslen(szAppid) == 0) {
 		::WritePrivateProfileString(_T("AppID"), _T("AppID"), _T(""), szFilePath);
+		::WritePrivateProfileString(_T("AppID"), _T("AppToken"), _T(""), szFilePath);
 		::ShellExecute(NULL, _T("open"), szFilePath, NULL, NULL, SW_MAXIMIZE);
 	}
 
 	strAppID = szAppid;
 
 	return strAppID;
+}
+
+CString CConfig::GetAPP_Token()
+{
+	CString strAppToken(APP_TOKEN);
+	if (!strAppToken.IsEmpty())
+		return strAppToken;
+	TCHAR szFilePath[MAX_PATH];
+	::GetModuleFileName(NULL, szFilePath, MAX_PATH);
+	LPTSTR lpLastSlash = _tcsrchr(szFilePath, _T('\\'));
+
+	if (lpLastSlash == NULL)
+		return strAppToken;
+
+	SIZE_T nNameLen = MAX_PATH - (lpLastSlash - szFilePath + 1);
+	_tcscpy_s(lpLastSlash + 1, nNameLen, _T("AppID.ini"));
+
+	TCHAR szToken[MAX_PATH] = { 0 };
+	::GetPrivateProfileString(_T("AppID"), _T("AppToken"), NULL, szToken, MAX_PATH, szFilePath);
+	strAppToken = szToken;
+
+	return strAppToken;
 }

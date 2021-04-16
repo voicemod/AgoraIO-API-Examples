@@ -26,6 +26,7 @@ void CAgoraMutilVideoSourceDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BUTTON_JOINCHANNEL, m_btnJoinChannel);
 	DDX_Control(pDX, IDC_BUTTON_PUBLISH, m_btnPublish);
 	DDX_Control(pDX, IDC_STATIC_DETAIL, m_staDetail);
+	DDX_Control(pDX, IDC_CHECK_RAW_VIDEO, m_chkRawVideo);
 }
 
 
@@ -36,8 +37,12 @@ BEGIN_MESSAGE_MAP(CAgoraMutilVideoSourceDlg, CDialogEx)
 	ON_MESSAGE(WM_MSGID(EID_USER_JOINED), &CAgoraMutilVideoSourceDlg::OnEIDUserJoined)
 	ON_MESSAGE(WM_MSGID(EID_USER_OFFLINE), &CAgoraMutilVideoSourceDlg::OnEIDUserOffline)
 	ON_MESSAGE(WM_MSGID(EID_REMOTE_VIDEO_STATE_CHANED), &CAgoraMutilVideoSourceDlg::OnEIDRemoteVideoStateChanged)
+	ON_MESSAGE(WM_MSGID(EID_CONNECTION_STATE_CHANGED), &CAgoraMutilVideoSourceDlg::OnEIDConnectionStateChanged)
+
 	ON_BN_CLICKED(IDC_BUTTON_JOINCHANNEL, &CAgoraMutilVideoSourceDlg::OnBnClickedButtonJoinchannel)
 	ON_BN_CLICKED(IDC_BUTTON_PUBLISH, &CAgoraMutilVideoSourceDlg::OnBnClickedButtonPublish)
+	
+	ON_BN_CLICKED(IDC_CHECK_RAW_VIDEO, &CAgoraMutilVideoSourceDlg::OnBnClickedCheckRawVideo)
 END_MESSAGE_MAP()
 
 
@@ -74,7 +79,7 @@ bool CAgoraMutilVideoSourceDlg::InitAgora()
 	if (ret != 0) {
 		m_initialize = false;
 		CString strInfo;
-		strInfo.Format(_T("initialize failed: %d"), ret);
+		if (ret == -101) m_lstInfo.InsertString(m_lstInfo.GetCount(), InvalidAppidError); strInfo.Format(_T("initialize failed: %d"), ret);
 		m_lstInfo.InsertString(m_lstInfo.GetCount(), strInfo);
 		return false;
 	}
@@ -110,6 +115,8 @@ void CAgoraMutilVideoSourceDlg::UnInitAgora()
 		//disable video in the engine.
 		m_rtcEngine->disableVideo();
 		m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("disableVideo"));
+		if (m_chkRawVideo.GetCheck())
+			RegisterVideoFrameObserver(FALSE, nullptr);
 		//release engine.
 		m_rtcEngine->release(true);
 		m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("release rtc engine"));
@@ -213,6 +220,27 @@ void CAgoraMutilVideoSourceDlg::StartDesktopShare()
 	m_rtcEngine->startScreenCaptureByScreenRect(rc, rc, scp);
 }
 
+BOOL CAgoraMutilVideoSourceDlg::RegisterVideoFrameObserver(BOOL bEnable, IVideoFrameObserver * videoFrameObserver)
+{
+	agora::util::AutoPtr<agora::media::IMediaEngine> mediaEngine;
+	//query interface agora::AGORA_IID_MEDIA_ENGINE in the engine.
+	mediaEngine.queryInterface(m_rtcEngine, AGORA_IID_MEDIA_ENGINE);
+	int nRet = 0;
+
+	agora::base::AParameter apm(*m_rtcEngine);
+	if (mediaEngine.get() == NULL)
+		return FALSE;
+	if (bEnable) {
+		//register agora video frame observer.
+		nRet = mediaEngine->registerVideoFrameObserver(videoFrameObserver);
+	}
+	else {
+		//unregister agora video frame observer.
+		nRet = mediaEngine->registerVideoFrameObserver(nullptr);
+	}
+	return nRet == 0 ? TRUE : FALSE;
+}
+
 void CAgoraMutilVideoSourceDlg::OnBnClickedButtonJoinchannel()
 {
 	if (!m_rtcEngine || !m_initialize)
@@ -234,10 +262,15 @@ void CAgoraMutilVideoSourceDlg::OnBnClickedButtonJoinchannel()
 		optionsCamera.publishCameraTrack = true;
 		optionsCamera.publishScreenTrack = false;
 		optionsCamera.clientRoleType = CLIENT_ROLE_BROADCASTER;
+
+
+		if (m_chkRawVideo.GetCheck())
+			RegisterVideoFrameObserver(TRUE, &m_observer);
+
 		m_rtcEngine->startPreview();
-		
+
 		//join channel in the engine.
-		if (0 == m_rtcEngine->joinChannel(APP_TOKEN, szChannelId.data(), 0, optionsCamera)) {
+		if (0 == m_rtcEngine->joinChannel(GET_APP_TOKEN, szChannelId.data(), 0, optionsCamera)) {
 			//strInfo.Format(_T("join channel %s"), strChannelName);
 			m_btnJoinChannel.EnableWindow(FALSE);
 			m_conn_camera = DEFAULT_CONNECTION_ID;
@@ -255,16 +288,22 @@ void CAgoraMutilVideoSourceDlg::OnBnClickedButtonJoinchannel()
 		p->SetChannelId(m_vecVidoeSourceEventHandler.size());
 		p->SetMsgReceiver(GetSafeHwnd());
 		m_vecVidoeSourceEventHandler.push_back(p);
-		if (0 == m_rtcEngine->joinChannelEx(APP_TOKEN, m_strChannel.c_str(), 0, options, p, &conn_id))
+		if (0 == m_rtcEngine->joinChannelEx(GET_APP_TOKEN, m_strChannel.c_str(), 0, options, p, &conn_id))
 		{
 			m_conn_screen = conn_id;
 			m_btnJoinChannel.EnableWindow(FALSE);
 		}
+
+		m_chkRawVideo.EnableWindow(FALSE);
 	}
 	else {
 		m_rtcEngine->leaveChannel();
 		m_rtcEngine->leaveChannelEx(m_strChannel.data(), m_conn_screen);
+		m_rtcEngine->stopPreview();
+		if (m_chkRawVideo.GetCheck())
+			RegisterVideoFrameObserver(FALSE, nullptr);
 		m_strChannel = "";
+		m_chkRawVideo.EnableWindow(TRUE);
 	}
 }
 
@@ -386,7 +425,40 @@ LRESULT CAgoraMutilVideoSourceDlg::OnEIDRemoteVideoStateChanged(WPARAM wParam, L
 	return 0;
 }
 
+LRESULT CAgoraMutilVideoSourceDlg::OnEIDConnectionStateChanged(WPARAM wParam, LPARAM lParam)
+{
+	CONNECTION_CHANGED_REASON_TYPE reason = (CONNECTION_CHANGED_REASON_TYPE)wParam;
+	if (reason == CONNECTION_CHANGED_INVALID_TOKEN || reason == CONNECTION_CHANGED_TOKEN_EXPIRED ||
+		reason == CONNECTION_CHANGED_INVALID_CHANNEL_NAME || reason == CONNECTION_CHANGED_REJECTED_BY_SERVER ||
+		reason == CONNECTION_CHANGED_INVALID_APP_ID) {
 
+		CString info = _T("");
+		switch (reason)
+		{
+		case CONNECTION_CHANGED_INVALID_TOKEN:
+		case CONNECTION_CHANGED_INVALID_APP_ID:
+			info = invalidTokenlError;
+			break;
+		case CONNECTION_CHANGED_TOKEN_EXPIRED:
+			info = invalidTokenExpiredError;
+			break;
+		case CONNECTION_CHANGED_INVALID_CHANNEL_NAME:
+			info = invalidChannelError;
+			break;
+		case CONNECTION_CHANGED_REJECTED_BY_SERVER:
+			info = refusedByServer;
+			break;
+		default:
+			break;
+		}
+
+		if (!info.IsEmpty())
+			m_lstInfo.InsertString(m_lstInfo.GetCount(), info);
+
+		m_btnJoinChannel.EnableWindow(TRUE);
+	}
+	return 0;
+}
 /*
 note:
 	Join the channel callback.This callback method indicates that the client
@@ -470,4 +542,27 @@ void CAgoraMultiVideoSourceEventHandler::onRemoteVideoStateChanged(agora::rtc::u
 	if (m_hMsgHanlder) {
 		::PostMessage(m_hMsgHanlder, WM_MSGID(EID_REMOTE_VIDEO_STATE_CHANED), (WPARAM)uid, (LPARAM)m_channelId);
 	}
+}
+////////////////////////////////////////////////////////////////////////////
+bool CVideoSourceObserver::onScreenCaptureVideoFrame(VideoFrame& videoFrame)
+{
+	OutputDebugString(_T("###########################################\n"));
+	OutputDebugString(_T("onScreenCaptureVideoFrame\n"));
+	OutputDebugString(_T("###########################################\n"));
+	return true;
+}
+
+
+bool CVideoSourceObserver::onCaptureVideoFrame(VideoFrame& videoFrame)
+{
+	OutputDebugString(_T("###########################################\n"));
+	OutputDebugString(_T("onCaptureVideoFrame\n"));
+	OutputDebugString(_T("###########################################\n"));
+	return true;
+}
+
+
+void CAgoraMutilVideoSourceDlg::OnBnClickedCheckRawVideo()
+{
+	
 }

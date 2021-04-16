@@ -68,6 +68,8 @@
 #define IDC_EDIT_ENCRYPT_KEY            1022
 #define IDC_STATIC_VIDEO_SOURCE         1022
 #define IDC_BUTTON_JOINCHANNEL2         1022
+#define IDC_COMBO_PERSONS2              1022
+#define IDC_COMBO_ENCODER               1022
 #define IDC_EDIT_INJECT_URL             1023
 #define IDC_EDIT_SEI                    1023
 #define IDC_EDIT_BEAUTY_REDNESS         1023
@@ -123,6 +125,7 @@
 #define IDC_CHK_ONLY_LOCAL              1054
 #define IDC_CHECK_CURSOR                1054
 #define IDC_CHK_TRANS_CODING            1054
+#define IDC_CHECK_RAW_VIDEO             1054
 #define IDC_STATIC_ADUIO_PROFILE        1055
 #define IDC_CHK_REPLACE_MICROPHONE      1055
 #define IDC_STATIC_ADUIO_SCENARIO       1056
@@ -261,7 +264,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        136
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1089
+#define _APS_NEXT_CONTROL_VALUE         1090
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

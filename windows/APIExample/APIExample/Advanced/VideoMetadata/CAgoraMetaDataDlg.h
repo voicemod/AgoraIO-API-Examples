@@ -21,7 +21,8 @@ public:
         True: send
         False: don't send
     */
-	virtual bool onReadyToSendMetadata(Metadata &metadata, VIDEO_SOURCE_TYPE source_type)override;
+	virtual bool onReadyToSendMetadata(Metadata &metadata, agora::rtc::MEDIA_SOURCE_TYPE source_type);
+	
     /*
         The receiver has received Metadata.The SDK triggers the callback when it
         receives Metadata sent by the remote user.
@@ -114,6 +115,19 @@ public:
          SDK triggers this callback.
      */
     virtual void onRemoteVideoStateChanged(uid_t uid, REMOTE_VIDEO_STATE state, REMOTE_VIDEO_STATE_REASON reason, int elapsed) override;
+
+
+	/** Occurs when the connection state of the SDK to the server is changed.
+
+	@param state See #CONNECTION_STATE_TYPE.
+	@param reason See #CONNECTION_CHANGED_REASON_TYPE.
+	*/
+	void onConnectionStateChanged(CONNECTION_STATE_TYPE state, CONNECTION_CHANGED_REASON_TYPE reason)
+	{
+		if (m_hMsgHanlder) {
+			::PostMessage(m_hMsgHanlder, WM_MSGID(EID_CONNECTION_STATE_CHANGED), reason, state);
+		}
+	}
 private:
     HWND m_hMsgHanlder;
 };
@@ -147,6 +161,8 @@ public:
     afx_msg LRESULT OnEIDUserOffline(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnEIDRemoteVideoStateChanged(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnEIDMetadataReceived(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnEIDConnectionStateChanged(WPARAM wParam, LPARAM lParam);
+
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 

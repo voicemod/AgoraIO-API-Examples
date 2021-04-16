@@ -265,6 +265,13 @@ wchar_t MultiCameraStartCapture[INFO_LEN] = { 0 };
 wchar_t MultiCameraStopCapture[INFO_LEN] = { 0 };
 
 wchar_t AdvancedLocalVideoTranscoding[INFO_LEN] = { 0 };
+
+
+wchar_t InvalidAppidError[INFO_LEN] = { 0 };
+wchar_t invalidTokenlError[INFO_LEN] = { 0 };
+wchar_t invalidTokenExpiredError[INFO_LEN] = { 0 };
+wchar_t invalidChannelError[INFO_LEN] = { 0 };
+wchar_t refusedByServer[INFO_LEN] = { 0 };
 std::string cs2utf8(CString str)
 {
     char szBuf[2 * MAX_PATH] = { 0 };
@@ -615,15 +622,17 @@ void InitKeyInfomation()
 
 	_tcscpy_s(AdvancedLocalVideoTranscoding, INFO_LEN, Str(_T("Advanced.LocalVideoTranscoding")));
 	
+	_tcscpy_s(InvalidAppidError, INFO_LEN, Str(_T("ConectionError.InvalidAppid")));
+	_tcscpy_s(invalidTokenlError, INFO_LEN, Str(_T("ConectionError.InvalidAppToken")));
+	_tcscpy_s(invalidTokenExpiredError, INFO_LEN, Str(_T("ConectionError.TokenExpired")));
+	_tcscpy_s(invalidChannelError, INFO_LEN, Str(_T("ConectionError.InvalidChannel")));
+	_tcscpy_s(refusedByServer, INFO_LEN, Str(_T("ConectionError.RefuseddByServer")));
+
 	/*   
  
    
    
-    _tcscpy_s(, INFO_LEN, Str(_T("")));
-    _tcscpy_s(, INFO_LEN, Str(_T("")));
-    _tcscpy_s(, INFO_LEN, Str(_T("")));
-    _tcscpy_s(, INFO_LEN, Str(_T("")));
-    _tcscpy_s(, INFO_LEN, Str(_T("")));
+    
     _tcscpy_s(, INFO_LEN, Str(_T("")));
     _tcscpy_s(, INFO_LEN, Str(_T("")));
     _tcscpy_s(, INFO_LEN, Str(_T("")));

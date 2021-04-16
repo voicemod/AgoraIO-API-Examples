@@ -289,6 +289,11 @@ extern wchar_t AdvancedLocalVideoTranscoding[INFO_LEN];
 extern wchar_t MultiCameraStartCapture[INFO_LEN];
 extern wchar_t MultiCameraStopCapture[INFO_LEN];
 
+extern wchar_t InvalidAppidError[INFO_LEN];
+extern wchar_t invalidTokenlError[INFO_LEN];
+extern wchar_t invalidTokenExpiredError[INFO_LEN];
+extern wchar_t invalidChannelError[INFO_LEN];
+extern wchar_t refusedByServer[INFO_LEN];
 //area code
 extern wchar_t RegionConnCtrlAreaCode[INFO_LEN];
 extern void InitKeyInfomation();
