@@ -76,6 +76,7 @@
     <string name="item_rtmpstreaming">RTMP Streaming</string>
     <string name="item_rtmpinjection">Inject Online Media Stream</string>
     <string name="item_pushexternal">Custom Video Source(Push)</string>
+    <string name="item_pullaudioframe">Custom Audio Render(Pull)</string>
     <string name="item_switchexternal">Custom Video Source(Push)/Screen Share</string>
     <string name="item_cameraorscreen">Switch Camera and Screen Share</string>
     <string name="item_customaudiosource">Custom Audio Source</string>
@@ -96,6 +97,7 @@
     <string name="customremoterender">This example demonstrates how to customize the functions of the remote video stream renderer during audio and video calls.</string>
     <string name="processrawdata">This example demonstrates how to obtain raw data through callback during audio and video calls, and how to return the data to the SDK after processing.\nPS:Bare data includes video frames and audio frames</string>
     <string name="pushexternalvideo">This example demonstrates how to use the active push mode to collect video during audio and video calls.</string>
+    <string name="pullaudioframe">This example demonstrates how to use the pull mode to render audio during audio and video calls.</string>
     <string name="quickswitchchannel">This example demonstrates how to quickly switch channels during audio and video calls.</string>
     <string name="joinmultichannel">This example demonstrates how to join multiple channels during audio and video calls.</string>
     <string name="rtmpinjection">This example demonstrates how to input and render an online media stream during an audio and video call.</string>

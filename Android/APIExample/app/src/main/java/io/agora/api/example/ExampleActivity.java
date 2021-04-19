@@ -22,16 +22,17 @@ import io.agora.api.example.examples.advanced.MediaPlayer;
 import io.agora.api.example.examples.advanced.PlayAudioFiles;
 import io.agora.api.example.examples.advanced.PreCallTest;
 import io.agora.api.example.examples.advanced.ProcessRawData;
+import io.agora.api.example.examples.advanced.PullAudioFrame;
 import io.agora.api.example.examples.advanced.PushExternalVideo;
-import io.agora.api.example.examples.advanced.SetVideoProfile;
-import io.agora.api.example.examples.advanced.SwitchExternalVideo;
-import io.agora.api.example.examples.advanced.SetAudioProfile;
-import io.agora.api.example.examples.advanced.VideoQuickSwitch;
 import io.agora.api.example.examples.advanced.RTMPInjection;
 import io.agora.api.example.examples.advanced.RTMPStreaming;
+import io.agora.api.example.examples.advanced.SetAudioProfile;
+import io.agora.api.example.examples.advanced.SetVideoProfile;
 import io.agora.api.example.examples.advanced.StreamEncrypt;
 import io.agora.api.example.examples.advanced.SwitchCameraScreenShare;
+import io.agora.api.example.examples.advanced.SwitchExternalVideo;
 import io.agora.api.example.examples.advanced.VideoMetadata;
+import io.agora.api.example.examples.advanced.VideoQuickSwitch;
 import io.agora.api.example.examples.advanced.customaudio.CustomAudioSource;
 import io.agora.api.example.examples.basic.JoinChannelAudio;
 import io.agora.api.example.examples.basic.JoinChannelVideo;
@@ -82,6 +83,9 @@ public class ExampleActivity extends AppCompatActivity {
                 break;
             case R.id.action_mainFragment_to_PushExternalVideo:
                 fragment = new PushExternalVideo();
+                break;
+            case R.id.action_mainFragment_to_PullAudioFrame:
+                fragment = new PullAudioFrame();
                 break;
             case R.id.action_mainFragment_to_QuickSwitch:
                 fragment = new VideoQuickSwitch();
