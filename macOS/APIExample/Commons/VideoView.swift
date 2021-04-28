@@ -34,7 +34,7 @@ class VideoView: NSView, NibLoadable {
     @IBOutlet weak var videocanvas: NSView!
     @IBOutlet weak var infolabel: NSTextField!
     @IBOutlet weak var statsLabel:NSTextField!
-    
+    var sticky:Bool = false
     var uid:UInt? {
         didSet {
             infolabel.stringValue = uid == nil ? "" : "\(uid!)"

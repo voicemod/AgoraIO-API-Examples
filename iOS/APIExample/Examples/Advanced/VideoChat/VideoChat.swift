@@ -10,73 +10,42 @@ import UIKit
 import AgoraRtcKit
 import AGEVideoLayout
 
+enum VideoLayout {
+    case grid2x3
+    case framework
+    func description() -> String {
+        switch self {
+        case .grid2x3:
+            return "2x3 Grid Layout".localized
+        case .framework:
+            return "Frame Layout".localized
+        }
+    }
+}
+
 class VideoChatEntry: UIViewController {
     @IBOutlet weak var joinButton: UIButton!
     @IBOutlet weak var channelTextField: UITextField!
     let identifier = "VideoChat"
-    @IBOutlet var resolutionBtn: UIButton!
-    @IBOutlet var fpsBtn: UIButton!
-    @IBOutlet var orientationBtn: UIButton!
-    var width:Int = 640, height:Int = 360, orientation:AgoraVideoOutputOrientationMode = .adaptative, fps: AgoraVideoFrameRate = .fps15
+    @IBOutlet var layoutBtn: UIButton!
+    var layoutType:VideoLayout = .grid2x3
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        resolutionBtn.setTitle("\(width)x\(height)", for: .normal)
-        fpsBtn.setTitle("\(fps.rawValue)fps", for: .normal)
-        orientationBtn.setTitle("\(orientation.description())", for: .normal)
+        layoutBtn.setTitle(layoutType.description(), for: .normal)
     }
     
-    
-    func getResolutionAction(width:Int, height:Int) -> UIAlertAction{
-        return UIAlertAction(title: "\(width)x\(height)", style: .default, handler: {[unowned self] action in
-            self.width = width
-            self.height = height
-            self.resolutionBtn.setTitle("\(width)x\(height)", for: .normal)
+    func getLayoutAction(_ layout:VideoLayout) -> UIAlertAction{
+        return UIAlertAction(title: layout.description(), style: .default, handler: {[unowned self] action in
+            self.layoutType = layout
+            self.layoutBtn.setTitle(layoutType.description(), for: .normal)
         })
     }
     
-    func getFpsAction(_ fps:AgoraVideoFrameRate) -> UIAlertAction{
-        return UIAlertAction(title: "\(fps.rawValue)fps", style: .default, handler: {[unowned self] action in
-            self.fps = fps
-            self.fpsBtn.setTitle("\(fps.rawValue)fps", for: .normal)
-        })
-    }
-    
-    func getOrientationAction(_ orientation:AgoraVideoOutputOrientationMode) -> UIAlertAction{
-        return UIAlertAction(title: "\(orientation.description())", style: .default, handler: {[unowned self] action in
-            self.orientation = orientation
-            self.orientationBtn.setTitle("\(orientation.description())", for: .normal)
-        })
-    }
-    
-    @IBAction func setResolution() {
-        let alert = UIAlertController(title: "Set Resolution".localized, message: nil, preferredStyle: UIDevice.current.userInterfaceIdiom == .pad ? UIAlertController.Style.alert : UIAlertController.Style.actionSheet)
-        alert.addAction(getResolutionAction(width: 90, height: 90))
-        alert.addAction(getResolutionAction(width: 160, height: 120))
-        alert.addAction(getResolutionAction(width: 320, height: 240))
-        alert.addAction(getResolutionAction(width: 640, height: 360))
-        alert.addAction(getResolutionAction(width: 1280, height: 720))
-        alert.addCancelAction()
-        present(alert, animated: true, completion: nil)
-    }
-    
-    @IBAction func setFps() {
-        let alert = UIAlertController(title: "Set Fps".localized, message: nil, preferredStyle: UIDevice.current.userInterfaceIdiom == .pad ? UIAlertController.Style.alert : UIAlertController.Style.actionSheet)
-        alert.addAction(getFpsAction(.fps10))
-        alert.addAction(getFpsAction(.fps15))
-        alert.addAction(getFpsAction(.fps24))
-        alert.addAction(getFpsAction(.fps30))
-        alert.addAction(getFpsAction(.fps60))
-        alert.addCancelAction()
-        present(alert, animated: true, completion: nil)
-    }
-    
-    @IBAction func setOrientation() {
-        let alert = UIAlertController(title: "Set Orientation".localized, message: nil, preferredStyle: UIDevice.current.userInterfaceIdiom == .pad ? UIAlertController.Style.alert : UIAlertController.Style.actionSheet)
-        alert.addAction(getOrientationAction(.adaptative))
-        alert.addAction(getOrientationAction(.fixedLandscape))
-        alert.addAction(getOrientationAction(.fixedPortrait))
-        alert.addCancelAction()
+    @IBAction func setLayoutType() {
+        let alert = UIAlertController(title: "Set Layout Type".localized, message: nil, preferredStyle: UIDevice.current.userInterfaceIdiom == .pad ? UIAlertController.Style.alert : UIAlertController.Style.actionSheet)
+        alert.addAction(getLayoutAction(.grid2x3))
+        alert.addAction(getLayoutAction(.framework))
         present(alert, animated: true, completion: nil)
     }
     
@@ -89,14 +58,14 @@ class VideoChatEntry: UIViewController {
         // create new view controller every time to ensure we get a clean vc
         guard let newViewController = storyBoard.instantiateViewController(withIdentifier: identifier) as? BaseViewController else { return }
         newViewController.title = channelName
-        newViewController.configs = ["channelName": channelName, "resolution": CGSize(width: width, height: height), "fps": fps, "orientation": orientation]
+        newViewController.configs = ["channelName": channelName, "layoutType": layoutType]
         self.navigationController?.pushViewController(newViewController, animated: true)
     }
 }
 
 class VideoChatMain: BaseViewController {
     var agoraKit: AgoraRtcEngineKit!
-    @IBOutlet weak var container: AGEVideoContainer!
+    @IBOutlet weak var containerView: AGEVideoContainer!
     var videoViews: [UInt:VideoView] = [:]
     
     // indicate if current instance has joined channel
@@ -104,7 +73,7 @@ class VideoChatMain: BaseViewController {
     
     override func viewDidLoad(){
         super.viewDidLoad()
-        
+        containerView.delegate = self
         // set up agora instance when view loadedlet config = AgoraRtcEngineConfig()
         let config = AgoraRtcEngineConfig()
         config.appId = KeyCenter.AppId
@@ -118,9 +87,9 @@ class VideoChatMain: BaseViewController {
         
         // get channel name from configs
         guard let channelName = configs["channelName"] as? String,
-            let resolution = configs["resolution"] as? CGSize,
-            let fps = configs["fps"] as? AgoraVideoFrameRate,
-            let orientation = configs["orientation"] as? AgoraVideoOutputOrientationMode else { return }
+              let resolution = GlobalSettings.shared.getSetting(key: "resolution")?.selectedOption().value as? CGSize,
+              let fps = GlobalSettings.shared.getSetting(key: "fps")?.selectedOption().value as? AgoraVideoFrameRate,
+              let orientation = GlobalSettings.shared.getSetting(key: "orientation")?.selectedOption().value as? AgoraVideoOutputOrientationMode else {return}
         
         // make myself a broadcaster
         agoraKit.setChannelProfile(.liveBroadcasting)
@@ -136,7 +105,13 @@ class VideoChatMain: BaseViewController {
                 orientationMode: orientation
             )
         )
-        
+        /**
+         To minimize bandwidth consumption and ensure smooth communication in a video scenario with multiple users, Agora recommends the following:
+
+         All publishers enable dual-stream mode.
+         Every subscriber receives the high-quality video stream of only one publisher, and the low-quality stream of the other publishers.
+         */
+        agoraKit.enableDualStreamMode(true)
         // set up local video to render your local camera preview
         let videoCanvas = AgoraRtcVideoCanvas()
         videoCanvas.uid = 0
@@ -148,7 +123,7 @@ class VideoChatMain: BaseViewController {
         agoraKit.setupLocalVideo(videoCanvas)
         
         videoViews[0] = localVideo
-        container.layoutStream2x2(views: self.sortedViews())
+        setVideoLayout()
         
         // Set audio route to speaker
         agoraKit.setDefaultAudioRouteToSpeakerphone(true)
@@ -181,9 +156,67 @@ class VideoChatMain: BaseViewController {
         }
     }
     
-    func sortedViews() -> [VideoView] {
-        return Array(videoViews.values).sorted(by: { $0.uid < $1.uid })
+    func cleanStickyVideo() {
+        videoViews.values.forEach({
+            $0.sticky = false
+            agoraKit.setRemoteVideoStream($0.uid, type: .low)
+        })
     }
+    
+    func sortedViews() -> [VideoView] {
+        return Array(videoViews.values).sorted(by: { $0.sticky || $0.uid < $1.uid })
+    }
+    
+    func setVideoLayout() {
+        switch configs["layoutType"] as? VideoLayout {
+        case .grid2x3:
+            setGridLayout()
+        case .framework:
+            setFrameLayout()
+        default:
+            setGridLayout()
+        }
+    }
+    
+    
+    func setGridLayout() {
+        // layout render view
+        containerView.removeAllLayouts()
+        containerView.layoutStream2x3(views: sortedViews())
+    }
+    
+    func setFrameLayout() {
+        let list = sortedViews()
+        let fullLayout = AGEVideoLayout(level: 0)
+            .startPoint(x: 0, y: 0)
+            .size(.scale(CGSize(width: 1, height: 1)))
+            .itemSize(.scale(CGSize(width: 1, height: 1)))
+        
+
+        let scrollLayout = AGEVideoLayout(level: 1)
+            .scrollType(.scroll(.vertical))
+            .startPoint(x: 30, y: 30)
+            .size(.constant(CGSize(width: 120, height: self.containerView.bounds.height - 30)))
+            .itemSize(.constant(CGSize(width: 120, height: 90)))
+
+        containerView
+            .listCount { (level: Int) -> Int in
+                if level == 0 {
+                    return 1
+                } else {
+                    return list.count - 1
+                }
+            }.listItem({ (index) -> AGEView in
+                if index.level == 0 {
+                    return list[index.item]
+                } else {
+                    return list[index.item + 1]
+                }
+            })
+        containerView.removeAllLayouts()
+        containerView.setLayouts([fullLayout, scrollLayout], animated: false)
+    }
+    
 }
 
 /// agora rtc engine delegate events
@@ -233,11 +266,19 @@ extension VideoChatMain: AgoraRtcEngineDelegate {
         // the view to be binded
         videoCanvas.view = remoteVideo.videoView
         videoCanvas.renderMode = .hidden
+        
+        switch configs["layoutType"] as? VideoLayout {
+        case .grid2x3:
+            agoraKit.setRemoteVideoStream(uid, type: .high)
+        case .framework:
+            agoraKit.setRemoteVideoStream(uid, type: .low)
+        default:
+            agoraKit.setRemoteVideoStream(uid, type: .high)
+        }
         agoraKit.setupRemoteVideo(videoCanvas)
         
         self.videoViews[uid] = remoteVideo
-        self.container.layoutStream2x2(views: sortedViews())
-        self.container.reload(level: 0, animated: true)
+        setVideoLayout()
     }
     
     /// callback when a remote user is leaving the channel, note audience in live broadcast mode will NOT trigger this event
@@ -256,8 +297,7 @@ extension VideoChatMain: AgoraRtcEngineDelegate {
         
         //remove remote audio view
         self.videoViews.removeValue(forKey: uid)
-        self.container.layoutStream2x2(views: sortedViews())
-        self.container.reload(level: 0, animated: true)
+        setVideoLayout()
     }
     
     /// Reports which users are speaking, the speakers' volumes, and whether the local user is speaking.
@@ -299,5 +339,17 @@ extension VideoChatMain: AgoraRtcEngineDelegate {
     /// @param stats stats struct for current call statistics
     func rtcEngine(_ engine: AgoraRtcEngineKit, remoteAudioStats stats: AgoraRtcRemoteAudioStats) {
         videoViews[stats.uid]?.statsInfo?.updateAudioStats(stats)
+    }
+}
+
+extension VideoChatMain: AGEVideoContainerDelegate {
+    func container(_ container: AGEVideoContainer, didSelected itemView: AGEView, index: AGEIndex) {
+        if index.level == 1 {
+            print(index.description)
+            cleanStickyVideo()
+            (itemView as! VideoView).sticky = true
+            agoraKit.setRemoteVideoStream((itemView as! VideoView).uid, type: .high)
+            setFrameLayout()
+        }
     }
 }

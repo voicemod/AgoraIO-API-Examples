@@ -48,7 +48,7 @@ class GlobalSettings {
             SettingItemOption(idx: 3, label: "640x360", value: CGSize(width: 640, height: 360)),
             SettingItemOption(idx: 4, label: "1280x720", value: CGSize(width: 1280, height: 720))
         ]),
-        "fps": SettingItem(selected: 3, options: [
+        "fps": SettingItem(selected: 1, options: [
             SettingItemOption(idx: 0, label: "10fps", value: AgoraVideoFrameRate.fps10),
             SettingItemOption(idx: 1, label: "15fps", value: AgoraVideoFrameRate.fps15),
             SettingItemOption(idx: 2, label: "24fps", value: AgoraVideoFrameRate.fps24),

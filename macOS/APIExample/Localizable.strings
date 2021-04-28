@@ -16,6 +16,7 @@
 "Custom Audio Render" = "音频自渲染";
 "Custom Video Source(MediaIO)" = "视频自采集(MediaIO)";
 "Custom Video Source(Push)" = "视频自采集(Push)";
+"Group Video Chat" = "多人视频聊天";
 "Custom Video Render" = "视频自渲染(Metal)";
 "Quick Switch Channel" = "快速切换频道";
 "Join Multiple Channels" = "加入多频道";
@@ -156,3 +157,5 @@
 "Sending" = "发送中";
 "Raw Audio Data" = "音频裸数据";
 "Video Source" = "视频源选择";
+"3x3 Grid Layout" = "九宫格布局";
+"Frame Layout"  = "大小屏布局";

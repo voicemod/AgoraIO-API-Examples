@@ -299,7 +299,7 @@
                                     <rect key="frame" x="-100" y="-100" width="299" height="15"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
-                                <scroller key="verticalScroller" autoresizesSubviews="NO" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="0.94999999999999996" horizontal="NO" id="ocJ-NX-y9k">
+                                <scroller key="verticalScroller" autoresizesSubviews="NO" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="ocJ-NX-y9k">
                                     <rect key="frame" x="298" y="0.0" width="16" height="500"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES"/>
                                 </scroller>

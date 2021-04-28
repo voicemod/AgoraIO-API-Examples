@@ -24,6 +24,7 @@ class MenuController: NSViewController {
         MenuItem(name: "Join a channel (Video)".localized, identifier: "menuCell", controller: "JoinChannelVideo", storyboard: "JoinChannelVideo"),
         MenuItem(name: "Join a channel (Audio)".localized, identifier: "menuCell", controller: "JoinChannelAudio", storyboard: "JoinChannelAudio"),
         MenuItem(name: "Anvanced", identifier: "headerCell"),
+        MenuItem(name: "Group Video Chat".localized, identifier: "menuCell", controller: "VideoChat", storyboard: "VideoChat"),
         MenuItem(name: "RTMP Streaming".localized, identifier: "menuCell", controller: "RTMPStreaming", storyboard: "RTMPStreaming"),
         MenuItem(name: "Custom Video Source(MediaIO)".localized, identifier: "menuCell", controller: "CustomVideoSourceMediaIO", storyboard: "CustomVideoSourceMediaIO"),
         MenuItem(name: "Custom Video Source(Push)".localized, identifier: "menuCell", controller: "CustomVideoSourcePush", storyboard: "CustomVideoSourcePush"),

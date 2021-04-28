@@ -1,0 +1,9 @@
+
+/* Class = "NSBox"; title = "Box"; ObjectID = "BP9-4w-AfJ"; */
+"BP9-4w-AfJ.title" = "Box";
+
+/* Class = "NSButtonCell"; title = "Join"; ObjectID = "Lhu-U1-6qh"; */
+"Lhu-U1-6qh.title" = "加入频道";
+
+/* Class = "NSViewController"; title = "Join Channel Video"; ObjectID = "YjT-yy-DnJ"; */
+"YjT-yy-DnJ.title" = "多人视频聊天";
