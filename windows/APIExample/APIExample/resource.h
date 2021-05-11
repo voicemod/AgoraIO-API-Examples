@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ 生成的包含文件。
-// 供 APIExample.rc 使用
+// Microsoft Visual C++ generated include file.
+// Used by APIExample.rc
 //
 #define IDM_ABOUTBOX                    0x0010
 #define IDD_ABOUTBOX                    100
@@ -68,8 +68,6 @@
 #define IDC_EDIT_ENCRYPT_KEY            1022
 #define IDC_STATIC_VIDEO_SOURCE         1022
 #define IDC_BUTTON_JOINCHANNEL2         1022
-#define IDC_COMBO_PERSONS2              1022
-#define IDC_COMBO_ENCODER               1022
 #define IDC_EDIT_INJECT_URL             1023
 #define IDC_EDIT_SEI                    1023
 #define IDC_EDIT_BEAUTY_REDNESS         1023
@@ -89,13 +87,21 @@
 #define IDC_BUTTON_STOP                 1025
 #define IDC_BUTTON_REMOVE_ALLSTREAM     1026
 #define IDC_BUTTON_PLAY                 1026
+#define IDC_EDIT_X                      1026
 #define IDC_BUTTON_ATTACH               1027
+#define IDC_EDIT_Y                      1027
 #define IDC_BUTTON_PUBLISH_VIDEO        1028
+#define IDC_EDIT_W                      1028
 #define IDC_BUTTON_PUBLISH_AUDIO        1029
+#define IDC_EDIT_H                      1029
 #define IDC_STATIC_RTMP_URL             1030
+#define IDC_STATIC_FPS2                 1030
 #define IDC_EDIT_RTMP_URL               1031
+#define IDC_STATIC_FPS3                 1031
 #define IDC_STATIC_RTMP_URLS            1032
+#define IDC_STATIC_FPS4                 1032
 #define IDC_COMBO_RTMPURLS              1033
+#define IDC_STATIC_FPS5                 1033
 #define IDC_STATIC_ADVANCE              1034
 #define IDC_STATIC_LIST_INFO            1035
 #define IDC_STATIC_GROUP_LIST           1037
@@ -125,6 +131,7 @@
 #define IDC_CHK_ONLY_LOCAL              1054
 #define IDC_CHECK_CURSOR                1054
 #define IDC_CHK_TRANS_CODING            1054
+#define IDC_CHECK_RAW_VIDEO             1054
 #define IDC_STATIC_ADUIO_PROFILE        1055
 #define IDC_CHK_REPLACE_MICROPHONE      1055
 #define IDC_STATIC_ADUIO_SCENARIO       1056
@@ -142,10 +149,12 @@
 #define IDC_STATIC_AUDIO_REPEAT         1065
 #define IDC_STATIC_ORIGINAL_VIDEO_PROC  1065
 #define IDC_COMBO_SCREEN_REGION         1065
+#define IDC_STATIC_GENERAL2             1065
 #define IDC_COMBO_ORIGINAL_VIDEO_PROC   1066
 #define IDC_STATIC_SHARE_DESKTOP        1066
 #define IDC_STATIC_AUDIO_AGIN           1066
 #define IDC_STATIC_AUDIO_VOLUME         1066
+#define IDC_BUTTON_UPDATEPARAM2         1066
 #define IDC_STATIC_AUDIO_VLOUME         1067
 #define IDC_BUTTON_SET_ORIGINAL_PROC    1067
 #define IDC_COMBO_REGION_RECT           1067
@@ -176,6 +185,9 @@
 #define IDC_BUTTON_SET_MEDIA_ENCRYPT    1088
 #define IDC_BUTTON_PUBLISH2             1088
 #define IDC_STATIC_ENCRYPT_KEY          1089
+#define IDC_STATIC_WND_LIST             1090
+#define IDC_COMBO1                      1091
+#define IDC_COMBO_EXLUDE_WINDOW_LIST    1091
 #define IDC_STATIC_AUDIO_EFFECT_PATH    1092
 #define IDC_EDIT_AUDIO_EFFECT_PATH      1093
 #define IDC_SPIN1                       1094
@@ -263,7 +275,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        136
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1089
+#define _APS_NEXT_CONTROL_VALUE         1092
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

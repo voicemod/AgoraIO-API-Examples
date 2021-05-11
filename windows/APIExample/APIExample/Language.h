@@ -124,7 +124,8 @@ extern wchar_t  screenShareCtrlFPS[INFO_LEN];
 extern wchar_t  screenShareCtrlBitrate[INFO_LEN];
 extern wchar_t  screenShareCtrlShareCursor[INFO_LEN];
 extern wchar_t  screenShareCtrlUpdateCaptureParam[INFO_LEN];
-
+extern wchar_t  screenShareCtrlUpdateRegionParam[INFO_LEN];
+extern wchar_t  screenShareCtrlExcludeWindowList[INFO_LEN];
 
 
 extern wchar_t screenCtrlRectInfo[INFO_LEN];
@@ -289,6 +290,11 @@ extern wchar_t AdvancedLocalVideoTranscoding[INFO_LEN];
 extern wchar_t MultiCameraStartCapture[INFO_LEN];
 extern wchar_t MultiCameraStopCapture[INFO_LEN];
 
+extern wchar_t InvalidAppidError[INFO_LEN];
+extern wchar_t invalidTokenlError[INFO_LEN];
+extern wchar_t invalidTokenExpiredError[INFO_LEN];
+extern wchar_t invalidChannelError[INFO_LEN];
+extern wchar_t refusedByServer[INFO_LEN];
 //area code
 extern wchar_t RegionConnCtrlAreaCode[INFO_LEN];
 extern void InitKeyInfomation();

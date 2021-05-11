@@ -217,11 +217,11 @@ void CAPIExampleDlg::InitSceneDialog()
    m_pLiveBroadcasting->MoveWindow(&rcWnd);
 
    //advanced list
-   m_vecAdvanced.push_back(advancedRtmpInject);
+   /*m_vecAdvanced.push_back(advancedRtmpInject);
    m_vecAdvanced.push_back(advancedRtmpStreaming);
    m_vecAdvanced.push_back(advancedVideoMetadata);
 
-   m_vecAdvanced.push_back(advancedScreenCap);
+  
    m_vecAdvanced.push_back(advancedAudioProfile);
    m_vecAdvanced.push_back(advancedAudioMixing);
    m_vecAdvanced.push_back(advancedAudioEffect);
@@ -238,7 +238,11 @@ void CAPIExampleDlg::InitSceneDialog()
    m_vecAdvanced.push_back(advancedRegionConn);
    m_vecAdvanced.push_back(advancedMediaEncrypt);
    m_vecAdvanced.push_back(MultiCameara);
-   m_vecAdvanced.push_back(AdvancedLocalVideoTranscoding);
+   m_vecAdvanced.push_back(AdvancedLocalVideoTranscoding);*/
+
+   m_vecAdvanced.push_back(advancedScreenCap);
+   m_vecAdvanced.push_back(advancedMultiVideoSource);
+
    m_pMultiChannelDlg = new CAgoraMultiChannelDlg(&m_staMainArea);
    m_pMultiChannelDlg->Create(CAgoraMultiChannelDlg::IDD);
    m_pMultiChannelDlg->MoveWindow(&rcWnd);

@@ -81,6 +81,19 @@ void CLiveBroadcastingRtcEngineEventHandler::onLeaveChannel(const RtcStats& stat
         ::PostMessage(m_hMsgHanlder, WM_MSGID(EID_LEAVE_CHANNEL), 0, 0);
     }
 }
+
+/** Occurs when the connection state of the SDK to the server is changed.
+
+ @param state See #CONNECTION_STATE_TYPE.
+ @param reason See #CONNECTION_CHANGED_REASON_TYPE.
+*/
+void CLiveBroadcastingRtcEngineEventHandler::onConnectionStateChanged(CONNECTION_STATE_TYPE state, CONNECTION_CHANGED_REASON_TYPE reason)
+{
+	if (m_hMsgHanlder) {
+		::PostMessage(m_hMsgHanlder, WM_MSGID(EID_CONNECTION_STATE_CHANGED), reason, state);
+	}
+}
+
 // CLiveBroadcastingDlg dialog
 IMPLEMENT_DYNAMIC(CLiveBroadcastingDlg, CDialogEx)
 
@@ -96,18 +109,17 @@ CLiveBroadcastingDlg::~CLiveBroadcastingDlg()
 
 void CLiveBroadcastingDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CDialogEx::DoDataExchange(pDX);
-	DDX_Control(pDX, IDC_COMBO_ROLE, m_cmbRole);
-	DDX_Control(pDX, IDC_STATIC_ROLE, m_staRole);
-	DDX_Control(pDX, IDC_EDIT_CHANNELNAME, m_edtChannelName);
-	DDX_Control(pDX, IDC_BUTTON_JOINCHANNEL, m_btnJoinChannel);
-	DDX_Control(pDX, IDC_LIST_INFO_BROADCASTING, m_lstInfo);
-	DDX_Control(pDX, IDC_STATIC_VIDEO, m_videoArea);
-	DDX_Control(pDX, IDC_COMBO_PERSONS, m_cmbPersons);
-	DDX_Control(pDX, IDC_STATIC_PERSONS, m_staPersons);
-	DDX_Control(pDX, IDC_STATIC_CHANNELNAME, m_staChannelName);
-	DDX_Control(pDX, IDC_STATIC_DETAIL, m_staDetail);
-	DDX_Control(pDX, IDC_COMBO_ENCODER, m_cmbVideoEncoder);
+    CDialogEx::DoDataExchange(pDX);
+    DDX_Control(pDX, IDC_COMBO_ROLE, m_cmbRole);
+    DDX_Control(pDX, IDC_STATIC_ROLE, m_staRole);
+    DDX_Control(pDX, IDC_EDIT_CHANNELNAME, m_edtChannelName);
+    DDX_Control(pDX, IDC_BUTTON_JOINCHANNEL, m_btnJoinChannel);
+    DDX_Control(pDX, IDC_LIST_INFO_BROADCASTING, m_lstInfo);
+    DDX_Control(pDX, IDC_STATIC_VIDEO, m_videoArea);
+    DDX_Control(pDX, IDC_COMBO_PERSONS, m_cmbPersons);
+    DDX_Control(pDX, IDC_STATIC_PERSONS, m_staPersons);
+    DDX_Control(pDX, IDC_STATIC_CHANNELNAME, m_staChannelName);
+    DDX_Control(pDX, IDC_STATIC_DETAIL, m_staDetail);
 }
 
 
@@ -119,9 +131,11 @@ BEGIN_MESSAGE_MAP(CLiveBroadcastingDlg, CDialogEx)
     ON_MESSAGE(WM_MSGID(EID_LEAVE_CHANNEL), &CLiveBroadcastingDlg::OnEIDLeaveChannel)
     ON_MESSAGE(WM_MSGID(EID_USER_JOINED), &CLiveBroadcastingDlg::OnEIDUserJoined)
     ON_MESSAGE(WM_MSGID(EID_USER_OFFLINE), &CLiveBroadcastingDlg::OnEIDUserOffline)
+	ON_MESSAGE(WM_MSGID(EID_CONNECTION_STATE_CHANGED), &CLiveBroadcastingDlg::OnEIDConnectionStateChanged)
     ON_WM_SHOWWINDOW()
     ON_LBN_SELCHANGE(IDC_LIST_INFO_BROADCASTING, &CLiveBroadcastingDlg::OnSelchangeListInfoBroadcasting)
     ON_STN_CLICKED(IDC_STATIC_VIDEO, &CLiveBroadcastingDlg::OnStnClickedStaticVideo)
+	
 END_MESSAGE_MAP()
 
 
@@ -140,15 +154,6 @@ BOOL CLiveBroadcastingDlg::OnInitDialog()
     m_cmbPersons.InsertString(i++, _T("1V3"));
     m_cmbPersons.InsertString(i++, _T("1V8"));
     m_cmbPersons.InsertString(i++, _T("1V15"));
-
-	i = 0;
-	m_cmbVideoEncoder.InsertString(i++, _T("VP8"));
-	m_cmbVideoEncoder.InsertString(i++, _T("h264"));
-	m_cmbVideoEncoder.InsertString(i++, _T("h265"));
-	m_cmbVideoEncoder.InsertString(i++, _T("VP9"));
-	m_cmbVideoEncoder.InsertString(i++, _T("Generic"));
-	m_cmbVideoEncoder.InsertString(i++, _T("Generic H264"));
-
 	ResumeStatus();
     return TRUE;
 }
@@ -256,15 +261,15 @@ bool CLiveBroadcastingDlg::InitAgora()
 	std::string strAppID = GET_APP_ID;
 	context.appId = strAppID.c_str();
     context.eventHandler = &m_eventHandler;
-	//set channel profile in the engine to the CHANNEL_PROFILE_LIVE_BROADCASTING.
-	context.channelProfile = CHANNEL_PROFILE_LIVE_BROADCASTING;
     //initialize the Agora RTC engine context.
     int ret = m_rtcEngine->initialize(context);
     if (ret != 0) {
         m_initialize = false;
         CString strInfo;
-        strInfo.Format(_T("initialize failed: %d"), ret);
+	   if (ret == -101) m_lstInfo.InsertString(m_lstInfo.GetCount(), InvalidAppidError); strInfo.Format(_T("initialize failed: %d"), ret);
         m_lstInfo.InsertString(m_lstInfo.GetCount(), strInfo);
+
+		
         return false;
     }
     else
@@ -273,7 +278,8 @@ bool CLiveBroadcastingDlg::InitAgora()
     //enable video in the engine.
     m_rtcEngine->enableVideo();
     m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("enable video"));
-   
+    //set channel profile in the engine to the CHANNEL_PROFILE_LIVE_BROADCASTING.
+    m_rtcEngine->setChannelProfile(CHANNEL_PROFILE_LIVE_BROADCASTING);
     m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("live broadcasting"));
     //set client role in the engine to the CLIENT_ROLE_BROADCASTER.
     m_rtcEngine->setClientRole(CLIENT_ROLE_BROADCASTER);
@@ -306,10 +312,8 @@ void CLiveBroadcastingDlg::ResumeStatus()
 	m_lstInfo.ResetContent();
 	m_cmbRole.SetCurSel(0);
 	m_cmbPersons.SetCurSel(0);
-	m_cmbVideoEncoder.SetCurSel(1);
 	ShowVideoWnds();
 	InitCtrlText();
-	
 	m_btnJoinChannel.EnableWindow(TRUE);
 	m_cmbRole.EnableWindow(TRUE);
 	m_edtChannelName.SetWindowText(_T(""));
@@ -320,7 +324,7 @@ void CLiveBroadcastingDlg::ResumeStatus()
 //render local video from SDK local capture.
 void CLiveBroadcastingDlg::RenderLocalVideo()
 {
-    if (m_rtcEngine) {
+    if (m_rtcEngine && m_initialize) {
         //start preview in the engine.
         m_rtcEngine->startPreview();
         VideoCanvas canvas;
@@ -362,16 +366,9 @@ void CLiveBroadcastingDlg::OnBnClickedButtonJoinchannel()
             AfxMessageBox(_T("Fill channel name first"));
             return;
         }
-
-		VideoEncoderConfiguration config;
-		if (m_cmbVideoEncoder.GetCurSel() < 3)
-			config.codecType = (VIDEO_CODEC_TYPE)(m_cmbVideoEncoder.GetCurSel() + 1);
-		else
-			config.codecType = (VIDEO_CODEC_TYPE)(m_cmbVideoEncoder.GetCurSel() + 2);
-		m_rtcEngine->setVideoEncoderConfiguration(config);
         std::string szChannelId = cs2utf8(strChannelName);
         //join channel in the engine.
-        if (0 == m_rtcEngine->joinChannel(APP_TOKEN, szChannelId.c_str(), "", 0)) {
+        if (0 == m_rtcEngine->joinChannel(GET_APP_TOKEN, szChannelId.c_str(), "", 0)) {
             strInfo.Format(_T("join channel %s"), getCurrentTime());
             m_btnJoinChannel.EnableWindow(FALSE);
         }
@@ -413,6 +410,7 @@ LRESULT CLiveBroadcastingDlg::OnEIDJoinChannelSuccess(WPARAM wParam, LPARAM lPar
 
     m_videoWnds[0].SetUID(wParam);
     m_lstUids.push_back(wParam);
+
     //notify parent window
     ::PostMessage(GetParent()->GetSafeHwnd(), WM_MSGID(EID_JOINCHANNEL_SUCCESS), TRUE, 0);
     return 0;
@@ -454,6 +452,7 @@ LRESULT CLiveBroadcastingDlg::OnEIDUserJoined(WPARAM wParam, LPARAM lParam)
             canvas.renderMode = media::base::RENDER_MODE_FIT;
             //setup remote video in engine to the canvas.
             m_rtcEngine->setupRemoteVideo(canvas);
+			m_videoWnds[i].SetUID(wParam);
             break;
         }
     }
@@ -489,7 +488,6 @@ LRESULT CLiveBroadcastingDlg::OnEIDUserOffline(WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-
 void CLiveBroadcastingDlg::OnSelchangeListInfoBroadcasting()
 {
     int sel = m_lstInfo.GetCurSel();
@@ -511,4 +509,39 @@ BOOL CLiveBroadcastingDlg::PreTranslateMessage(MSG* pMsg)
 		return TRUE;
 	}
 	return CDialogEx::PreTranslateMessage(pMsg);
+}
+
+LRESULT CLiveBroadcastingDlg::OnEIDConnectionStateChanged(WPARAM wParam, LPARAM lParam)
+{
+	CONNECTION_CHANGED_REASON_TYPE reason = (CONNECTION_CHANGED_REASON_TYPE)wParam;
+	if (reason == CONNECTION_CHANGED_INVALID_TOKEN || reason == CONNECTION_CHANGED_TOKEN_EXPIRED ||
+		reason == CONNECTION_CHANGED_INVALID_CHANNEL_NAME || reason == CONNECTION_CHANGED_REJECTED_BY_SERVER ||
+		reason == CONNECTION_CHANGED_INVALID_APP_ID) {
+
+		CString info = _T("");
+		switch (reason)
+		{
+		case CONNECTION_CHANGED_INVALID_TOKEN:
+		case CONNECTION_CHANGED_INVALID_APP_ID:
+			info = invalidTokenlError;
+			break;
+		case CONNECTION_CHANGED_TOKEN_EXPIRED:
+			info = invalidTokenExpiredError;
+			break;
+		case CONNECTION_CHANGED_INVALID_CHANNEL_NAME:
+			info = invalidChannelError;
+			break;
+		case CONNECTION_CHANGED_REJECTED_BY_SERVER:
+			info = refusedByServer;
+			break;
+		default:
+			break;
+		}
+
+		if (!info.IsEmpty())
+			m_lstInfo.InsertString(m_lstInfo.GetCount(), info);
+
+		m_btnJoinChannel.EnableWindow(TRUE);
+	}
+	return 0;
 }

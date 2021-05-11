@@ -76,6 +76,19 @@ public:
         SDK triggers this callback.
      */
 	virtual void onRemoteVideoStateChanged(uid_t uid, REMOTE_VIDEO_STATE state, REMOTE_VIDEO_STATE_REASON reason, int elapsed) override;
+
+
+	/** Occurs when the connection state of the SDK to the server is changed.
+
+	@param state See #CONNECTION_STATE_TYPE.
+	@param reason See #CONNECTION_CHANGED_REASON_TYPE.
+	*/
+	void onConnectionStateChanged(CONNECTION_STATE_TYPE state, CONNECTION_CHANGED_REASON_TYPE reason)
+	{
+		if (m_hMsgHanlder) {
+			::PostMessage(m_hMsgHanlder, WM_MSGID(EID_CONNECTION_STATE_CHANGED), reason, state);
+		}
+	}
 private:
 	HWND m_hMsgHanlder;
 };
@@ -95,6 +108,7 @@ public:
     ~CMonitors();
     static BOOL MonitorFunc(HMONITOR hMonitor, HDC hDc, LPRECT lpRect, LPARAM lParam);
     void EnumMonitor();
+	void SetScreenRegionSel(RECT    rcMonitor);
     agora::rtc::Rectangle RectToRectangle(RECT rc);
     std::vector<MonitorInformation> GetMonitors() { return m_vecMonitorInfos; }
     MonitorInformation GetMonitorInformation(int index);
@@ -105,6 +119,7 @@ public:
     bool IsValid();
     bool CheckMonitorValid(HMONITOR hMonitor);
     bool GetWindowRect(HWND hWnd, agora::rtc::Rectangle& regionRect);
+	RECT GetSceenRegionByHwnd(HWND hWnd);
 private:
     void Clear();
     std::vector<MonitorInformation> m_vecMonitorInfos;
@@ -145,6 +160,7 @@ public:
     afx_msg LRESULT OnEIDUserJoined(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnEIDUserOffline(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnEIDRemoteVideoStateChanged(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnEIDConnectionStateChanged(WPARAM wParam, LPARAM lParam);
 
 protected:
     virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
@@ -173,6 +189,10 @@ public:
     CStatic m_staVideoArea;
     CStatic m_staChannel;
     CEdit m_edtChannel;
+	CEdit m_edtX;
+	CEdit m_edtY;
+	CEdit m_edtW;
+	CEdit m_edtH;
     CStatic m_staScreenCap;
     CComboBox m_cmbScreenCap;
     CButton m_btnStartCap;
@@ -196,5 +216,10 @@ public:
 	CStatic m_staBitrate;
 	CStatic m_staGeneral;
 	CButton m_btnUpdateCaptureParam;
+	CButton m_btnUpdateRegionParam;
 	CStatic m_StaScreen;
+	CComboBox m_cmbExcluedWndList;
+	CStatic m_staExcludeWndList;
+	afx_msg void OnSelchangeComboScreenScreen();
+	afx_msg void OnBnClickedButtonUpdateparam2();
 };

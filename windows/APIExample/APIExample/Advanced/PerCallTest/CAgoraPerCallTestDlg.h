@@ -57,6 +57,7 @@ public:
 		if (m_hMsgHanlder)
 			::PostMessage(m_hMsgHanlder, WM_MSGID(EID_LASTMILE_PROBE_RESULT), 0,0);
 	}
+
 private:
 	HWND m_hMsgHanlder;
 };
@@ -105,7 +106,7 @@ protected:
 	LRESULT afx_msg OnEIDLastmileQuality(WPARAM wparam,LPARAM lparam);
 	LRESULT afx_msg OnEIDLastmileProbeResult(WPARAM wparam, LPARAM lparam);
 	LRESULT afx_msg OnEIDAudioVolumeIndication(WPARAM wparam, LPARAM lparam);
-
+	
 	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
 	virtual BOOL OnInitDialog();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);

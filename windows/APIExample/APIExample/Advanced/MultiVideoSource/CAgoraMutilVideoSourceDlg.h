@@ -150,5 +150,5 @@ public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnBnClickedButtonJoinchannel();
 	afx_msg void OnBnClickedButtonPublish();
-	
+
 };

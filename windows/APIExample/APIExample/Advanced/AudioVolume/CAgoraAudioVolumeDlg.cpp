@@ -65,14 +65,12 @@ bool CAgoraAudioVolumeDlg::InitAgora()
 	std::string strAppID = GET_APP_ID;
 	context.appId = strAppID.c_str();
 	context.eventHandler = &m_eventHandler;
-	//set channel profile in the engine to the CHANNEL_PROFILE_LIVE_BROADCASTING.
-	context.channelProfile = CHANNEL_PROFILE_LIVE_BROADCASTING;
 	//initialize the Agora RTC engine context.
 	int ret = m_rtcEngine->initialize(context);
 	if (ret != 0) {
 		m_initialize = false;
 		CString strInfo;
-		strInfo.Format(_T("initialize failed: %d"), ret);
+		if (ret == -101) m_lstInfo.InsertString(m_lstInfo.GetCount(), InvalidAppidError); strInfo.Format(_T("initialize failed: %d"), ret);
 		m_lstInfo.InsertString(m_lstInfo.GetCount(), strInfo);
 		return false;
 	}
@@ -89,7 +87,8 @@ bool CAgoraAudioVolumeDlg::InitAgora()
 	//enable video in the engine.
 	m_rtcEngine->enableVideo();
 	m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("enable video"));
-	
+	//set channel profile in the engine to the CHANNEL_PROFILE_LIVE_BROADCASTING.
+	m_rtcEngine->setChannelProfile(CHANNEL_PROFILE_LIVE_BROADCASTING);
 	m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("live broadcasting"));
 	//set client role in the engine to the CLIENT_ROLE_BROADCASTER.
 	m_rtcEngine->setClientRole(CLIENT_ROLE_BROADCASTER);
@@ -173,6 +172,7 @@ BEGIN_MESSAGE_MAP(CAgoraAudioVolumeDlg, CDialogEx)
 	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLIDER_SIGNAL_VOLUME2, &CAgoraAudioVolumeDlg::OnReleasedcaptureSliderSignalVolume2)
 	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLIDER_PLAYBACK_VOLUME, &CAgoraAudioVolumeDlg::OnReleasedcaptureSliderPlaybackVolume)
 	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLIDER_PLAYBACK_SIGNAL_VOLUME, &CAgoraAudioVolumeDlg::OnReleasedcaptureSliderPlaybackSignalVolume)
+	ON_MESSAGE(WM_MSGID(EID_CONNECTION_STATE_CHANGED), &CAgoraAudioVolumeDlg::OnEIDConnectionStateChanged)
 	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
@@ -236,7 +236,7 @@ void CAgoraAudioVolumeDlg::OnBnClickedButtonJoinchannel()
 		}
 		std::string szChannelId = cs2utf8(strChannelName);
 		//join channel in the engine.
-		if (0 == m_rtcEngine->joinChannel(APP_TOKEN, szChannelId.c_str(), "", 0)) {
+		if (0 == m_rtcEngine->joinChannel(GET_APP_TOKEN, szChannelId.c_str(), "", 0)) {
 			strInfo.Format(_T("join channel %s"), getCurrentTime());
 			m_btnJoinChannel.EnableWindow(FALSE);
 			m_staSpeaker_Info.SetWindowText(_T(""));
@@ -511,4 +511,39 @@ void CAgoraAudioVolumeDlg::OnTimer(UINT_PTR nIDEvent)
 		return;
 	}
 	CDialogEx::OnTimer(nIDEvent);
+}
+
+LRESULT CAgoraAudioVolumeDlg::OnEIDConnectionStateChanged(WPARAM wParam, LPARAM lParam)
+{
+	CONNECTION_CHANGED_REASON_TYPE reason = (CONNECTION_CHANGED_REASON_TYPE)wParam;
+	if (reason == CONNECTION_CHANGED_INVALID_TOKEN || reason == CONNECTION_CHANGED_TOKEN_EXPIRED ||
+		reason == CONNECTION_CHANGED_INVALID_CHANNEL_NAME || reason == CONNECTION_CHANGED_REJECTED_BY_SERVER ||
+		reason == CONNECTION_CHANGED_INVALID_APP_ID) {
+
+		CString info = _T("");
+		switch (reason)
+		{
+		case CONNECTION_CHANGED_INVALID_TOKEN:
+		case CONNECTION_CHANGED_INVALID_APP_ID:
+			info = invalidTokenlError;
+			break;
+		case CONNECTION_CHANGED_TOKEN_EXPIRED:
+			info = invalidTokenExpiredError;
+			break;
+		case CONNECTION_CHANGED_INVALID_CHANNEL_NAME:
+			info = invalidChannelError;
+			break;
+		case CONNECTION_CHANGED_REJECTED_BY_SERVER:
+			info = refusedByServer;
+			break;
+		default:
+			break;
+		}
+
+		if (!info.IsEmpty())
+			m_lstInfo.InsertString(m_lstInfo.GetCount(), info);
+
+		m_btnJoinChannel.EnableWindow(TRUE);
+	}
+	return 0;
 }

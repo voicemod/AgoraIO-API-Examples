@@ -67,6 +67,12 @@ public:
         stats: Call statistics.
     */
     virtual void onLeaveChannel(const RtcStats& stats) override;
+	/** Occurs when the connection state of the SDK to the server is changed.
+
+     @param state See #CONNECTION_STATE_TYPE.
+     @param reason See #CONNECTION_CHANGED_REASON_TYPE.
+    */
+	virtual void onConnectionStateChanged(CONNECTION_STATE_TYPE state, CONNECTION_CHANGED_REASON_TYPE reason) override;
 private:
     HWND m_hMsgHanlder;
 };
@@ -109,7 +115,7 @@ public:
     afx_msg LRESULT OnEIDLeaveChannel(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnEIDUserJoined(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnEIDUserOffline(WPARAM wParam, LPARAM lParam);
-
+	afx_msg LRESULT OnEIDConnectionStateChanged(WPARAM wParam, LPARAM lParam);
 private:
     //set control text from config.
     void InitCtrlText();
@@ -147,5 +153,4 @@ public:
     CStatic m_staChannelName;
     CStatic m_staDetail;
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	CComboBox m_cmbVideoEncoder;
 };

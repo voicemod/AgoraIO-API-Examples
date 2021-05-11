@@ -136,6 +136,8 @@ wchar_t screenShareCtrlFPS[INFO_LEN]					= { 0 };
 wchar_t screenShareCtrlBitrate[INFO_LEN]				= { 0 };
 wchar_t screenShareCtrlShareCursor[INFO_LEN]			= { 0 };
 wchar_t screenShareCtrlUpdateCaptureParam[INFO_LEN]		= { 0 };
+wchar_t screenShareCtrlUpdateRegionParam[INFO_LEN] = { 0 };
+wchar_t screenShareCtrlExcludeWindowList[INFO_LEN] = { 0 };
 
 wchar_t screenCtrlRectInfo[INFO_LEN]					= { 0 };
 wchar_t virtualScreenCtrlRectInfo[INFO_LEN]				= { 0 };
@@ -265,6 +267,13 @@ wchar_t MultiCameraStartCapture[INFO_LEN] = { 0 };
 wchar_t MultiCameraStopCapture[INFO_LEN] = { 0 };
 
 wchar_t AdvancedLocalVideoTranscoding[INFO_LEN] = { 0 };
+
+
+wchar_t InvalidAppidError[INFO_LEN] = { 0 };
+wchar_t invalidTokenlError[INFO_LEN] = { 0 };
+wchar_t invalidTokenExpiredError[INFO_LEN] = { 0 };
+wchar_t invalidChannelError[INFO_LEN] = { 0 };
+wchar_t refusedByServer[INFO_LEN] = { 0 };
 std::string cs2utf8(CString str)
 {
     char szBuf[2 * MAX_PATH] = { 0 };
@@ -441,6 +450,7 @@ void InitKeyInfomation()
 	_tcscpy_s(screenShareCtrlBitrate, INFO_LEN, Str(_T("ScreenShare.Ctrl.Bitrate")));
 	_tcscpy_s(screenShareCtrlShareCursor, INFO_LEN, Str(_T("ScreenShare.Ctrl.ShareCursor")));
 	_tcscpy_s(screenShareCtrlUpdateCaptureParam, INFO_LEN, Str(_T("ScreenShare.Ctrl.UpdateCaptureParam")));
+	_tcscpy_s(screenShareCtrlUpdateRegionParam, INFO_LEN, Str(_T("ScreenShare.Ctrl.UpdateCaptureRegion")));
 
 
     _tcscpy_s(screenCtrlRectInfo, INFO_LEN, Str(_T("Share.Ctrl.Screen.RectInfo")));
@@ -615,16 +625,19 @@ void InitKeyInfomation()
 
 	_tcscpy_s(AdvancedLocalVideoTranscoding, INFO_LEN, Str(_T("Advanced.LocalVideoTranscoding")));
 	
+	_tcscpy_s(InvalidAppidError, INFO_LEN, Str(_T("ConectionError.InvalidAppid")));
+	_tcscpy_s(invalidTokenlError, INFO_LEN, Str(_T("ConectionError.InvalidAppToken")));
+	_tcscpy_s(invalidTokenExpiredError, INFO_LEN, Str(_T("ConectionError.TokenExpired")));
+	_tcscpy_s(invalidChannelError, INFO_LEN, Str(_T("ConectionError.InvalidChannel")));
+	_tcscpy_s(refusedByServer, INFO_LEN, Str(_T("ConectionError.RefuseddByServer")));
+	_tcscpy_s(screenShareCtrlExcludeWindowList, INFO_LEN, Str(_T("ScreenShare.Ctrl.ExcludeWindowList")));
+
 	/*   
  
    
    
-    _tcscpy_s(, INFO_LEN, Str(_T("")));
-    _tcscpy_s(, INFO_LEN, Str(_T("")));
-    _tcscpy_s(, INFO_LEN, Str(_T("")));
-    _tcscpy_s(, INFO_LEN, Str(_T("")));
-    _tcscpy_s(, INFO_LEN, Str(_T("")));
-    _tcscpy_s(, INFO_LEN, Str(_T("")));
+    
+   
     _tcscpy_s(, INFO_LEN, Str(_T("")));
     _tcscpy_s(, INFO_LEN, Str(_T("")));
     _tcscpy_s(, INFO_LEN, Str(_T("")));

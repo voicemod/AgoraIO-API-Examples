@@ -4,6 +4,8 @@
 #define Str(key) CConfig::GetInstance()->GetStringValue(key) 
 #define GET_APP_ID cs2utf8(CConfig::GetInstance()->GetAPP_ID())
 
+#define GET_APP_TOKEN (cs2utf8(CConfig::GetInstance()->GetAPP_Token()).c_str())
+
 
 class CConfig
 {
@@ -14,6 +16,7 @@ public:
     static CConfig* GetInstance();
     CString GetStringValue(CString key);
 	CString GetAPP_ID();
+	CString GetAPP_Token();
 private:
     
     TCHAR m_szZhConfigFile[MAX_PATH];

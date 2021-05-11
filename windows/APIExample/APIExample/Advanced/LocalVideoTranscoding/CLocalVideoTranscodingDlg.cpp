@@ -38,6 +38,8 @@ BEGIN_MESSAGE_MAP(CLocalVideoTranscodingDlg, CDialogEx)
 	ON_MESSAGE(WM_MSGID(EID_LEAVE_CHANNEL), &CLocalVideoTranscodingDlg::OnEIDLeaveChannel)
 	ON_MESSAGE(WM_MSGID(EID_USER_JOINED), &CLocalVideoTranscodingDlg::OnEIDJoinChannelSuccess)
 	ON_BN_CLICKED(IDC_BUTTON_JOINCHANNEL, &CLocalVideoTranscodingDlg::OnBnClickedButtonJoinchannel)
+	ON_MESSAGE(WM_MSGID(EID_CONNECTION_STATE_CHANGED), &CLocalVideoTranscodingDlg::OnEIDConnectionStateChanged)
+
 	ON_WM_SHOWWINDOW()
 	ON_CBN_SELCHANGE(IDC_COMBO_CAMERAS, &CLocalVideoTranscodingDlg::OnSelchangeComboCameras)
 END_MESSAGE_MAP()
@@ -84,106 +86,8 @@ void CLocalVideoTranscodingDlg::OnBnClickedButtonJoinchannel()
 		::GetWindowRect(GetDesktopWindow()->GetSafeHwnd(), &rc);
 		rect = { rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top };
 
-		//setup local video in the engine to canvas.
-		agora::rtc::VideoCanvas canvas;
-		canvas.renderMode = media::base::RENDER_MODE_FIT;
-		canvas.uid = 0;
-		canvas.view = m_videoWnds[0].GetSafeHwnd();
-		canvas.sourceType = VIDEO_SOURCE_TRANSCODED;
-		m_rtcEngine->setupLocalVideo(canvas);
-		m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("setupLocalVideo"));
-		//primary camera configuration
-		CameraCapturerConfiguration config;
-		config.format.width = 640;
-		config.format.height = 360;
-		config.format.fps = 15;
-
-		IVideoDeviceCollection* collections = (*videoDeviceManager)->enumerateVideoDevices();
-		m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("initialize video device manager"));
-
-		for (int i = 0; i < collections->getCount(); ++i) {
-			char deviceId[512] = { 0 };
-			char deviceName[512] = { 0 };
-			// Get camera information
-			collections->getDevice(i, deviceName, deviceId);
-			CString strName;
-			m_cmbCamera.GetWindowText(strName);
-			if (cs2utf8(strName).compare(deviceName) == 0) {
-				strcpy_s(config.deviceId, 512, deviceId);
-				break;
-			}
-		}
-
-		//start primary camera capture
-		int ret = m_rtcEngine->startPrimaryCameraCapture(config);
-		m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("start primary camera capture"));
-
-		//start Screen capture
-		m_rtcEngine->startScreenCaptureByScreenRect(rect, rect, params);
-		m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("start Screen capture"));
-		int i = 0;
-		//screen
-		++i;
-		stream_infos[i].sourceType = agora::rtc::VIDEO_SOURCE_SCREEN_PRIMARY;
-		stream_infos[i].connectionId = agora::rtc::DEFAULT_CONNECTION_ID;
-		stream_infos[i].x = 0;
-		stream_infos[i].y = 0;
-		stream_infos[i].width = 1280;
-		stream_infos[i].height = 720;
-		//camera
-		++i;
-		stream_infos[i].sourceType = agora::rtc::VIDEO_SOURCE_CAMERA_PRIMARY;
-		stream_infos[i].connectionId = agora::rtc::DEFAULT_CONNECTION_ID;
-		stream_infos[i].x = 0;
-		stream_infos[i].y = 360;
-		stream_infos[i].width = 640;
-		stream_infos[i].height = 360;
-	//	stream_infos[i].matting = true;
-		//png imge
-		++i;
-		stream_infos[i].sourceType = agora::rtc::VIDEO_SOURCE_RTC_IMAGE_PNG;
-		stream_infos[i].connectionId = agora::rtc::DEFAULT_CONNECTION_ID;
-		stream_infos[i].x = 640;
-		stream_infos[i].y = 0;
-		stream_infos[i].width = 200;
-		stream_infos[i].height = 200;
-		stream_infos[i].imageUrl = m_imgPng.c_str();
-		//jpg image
-		++i;
-		stream_infos[i].sourceType = agora::rtc::VIDEO_SOURCE_RTC_IMAGE_JPEG;
-		stream_infos[i].connectionId = agora::rtc::DEFAULT_CONNECTION_ID;
-		stream_infos[i].x = 640 - 64;
-		stream_infos[i].y = 180 - 64;
-		stream_infos[i].width = 64;
-		stream_infos[i].height = 64;
-		stream_infos[i].imageUrl = m_imgJpg.c_str();
-		//video encoder configuration
-		agora::rtc::VideoEncoderConfiguration encoder_config;
-		encoder_config.codecType = agora::rtc::VIDEO_CODEC_H264;
-		encoder_config.dimensions = { 1280, 720 };
-		encoder_config.bitrate = 2000;
-		encoder_config.frameRate = 15;
 		// local transcoder configuration
-		agora::rtc::LocalTranscoderConfiguration transcoder_config;
-		transcoder_config.streamCount = 4;
-		transcoder_config.VideoInputStreams = stream_infos;
-		transcoder_config.videoOutputConfiguration = encoder_config;
-		ret = m_rtcEngine->startLocalVideoTranscoder(transcoder_config);
-		m_lstInfo.InsertString(m_lstInfo.GetCount() , _T("start local video Transcoder"));
-
-		//start preview
-		m_rtcEngine->startPreview();
-		m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("start preview"));
-
-		//join channel
-		agora::rtc::ChannelMediaOptions op;
-		op.publishTrancodedVideoTrack = true;
-		op.clientRoleType = agora::rtc::CLIENT_ROLE_BROADCASTER;
-		if (0 == m_rtcEngine->joinChannel(APP_TOKEN, szChannelId.data(), 0, op)) {
-			strInfo.Format(_T("join channel %s"), strChannelName);
-			m_lstInfo.InsertString(m_lstInfo.GetCount() , strInfo);
-			m_conn_camera = DEFAULT_CONNECTION_ID;
-		}
+	
 
 		m_btnJoinChannel.SetWindowText(commonCtrlLeaveChannel);
 	}
@@ -191,8 +95,7 @@ void CLocalVideoTranscodingDlg::OnBnClickedButtonJoinchannel()
 		//leave channel
 		m_rtcEngine->leaveChannel();
 		m_lstInfo.InsertString(m_lstInfo.GetCount() , _T("leave channel"));
-		// stop local video transcoder
-		m_rtcEngine->stopLocalVideoTranscoder();
+
 		m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("stop local video transcoder"));
 
 		//stop screen capture
@@ -220,14 +123,12 @@ bool CLocalVideoTranscodingDlg::InitAgora()
 	std::string strAppID = GET_APP_ID;
 	context.appId = strAppID.c_str();
 	context.eventHandler = &m_eventHandler;
-	//set channel profile in the engine to the CHANNEL_PROFILE_LIVE_BROADCASTING.
-	context.channelProfile = CHANNEL_PROFILE_LIVE_BROADCASTING;
 	//initialize the Agora RTC engine context.
 	int ret = m_rtcEngine->initialize(context);
 	if (ret != 0) {
 		m_initialize = false;
 		CString strInfo;
-		strInfo.Format(_T("initialize failed: %d"), ret);
+		if (ret == -101) m_lstInfo.InsertString(m_lstInfo.GetCount(), InvalidAppidError); strInfo.Format(_T("initialize failed: %d"), ret);
 		m_lstInfo.InsertString(m_lstInfo.GetCount(), strInfo);
 		return false;
 	}
@@ -237,7 +138,8 @@ bool CLocalVideoTranscodingDlg::InitAgora()
 	//enable video in the engine.
 	m_rtcEngine->enableVideo();
 	m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("enable video"));
-	
+	//set channel profile in the engine to the CHANNEL_PROFILE_LIVE_BROADCASTING.
+	m_rtcEngine->setChannelProfile(CHANNEL_PROFILE_LIVE_BROADCASTING);
 	m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("live broadcasting"));
 	//set client role in the engine to the CLIENT_ROLE_BROADCASTER.
 	m_rtcEngine->setClientRole(agora::rtc::CLIENT_ROLE_BROADCASTER);
@@ -270,32 +172,7 @@ bool CLocalVideoTranscodingDlg::InitAgora()
 //UnInitialize the Agora SDK
 void CLocalVideoTranscodingDlg::UnInitAgora()
 {
-	if (m_rtcEngine) {
-		if (m_joinChannel) {
-			//leave channel primary camera
-			m_joinChannel = !m_rtcEngine->leaveChannel();
-			m_lstInfo.InsertString(m_lstInfo.GetCount() - 1, _T("leaveChannel"));
-			//stop local video transcoder
-			m_rtcEngine->stopLocalVideoTranscoder();
-			m_lstInfo.InsertString(m_lstInfo.GetCount() - 1, _T("stop local video transcoder"));
 
-			//stop screen capture
-			m_rtcEngine->stopScreenCapture();
-			m_lstInfo.InsertString(m_lstInfo.GetCount() - 1, _T("stop screen capture"));
-			m_conn_camera = 0;
-			m_joinChannel = false;
-			m_btnJoinChannel.SetWindowText(commonCtrlJoinChannel);
-		}
-
-		//stop preview in the engine.
-		m_rtcEngine->stopPreview();
-		m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("stopPreview"));
-
-		//release engine.
-		m_rtcEngine->release(true);
-		m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("release rtc engine")); 
-		m_rtcEngine = NULL;
-	}
 }
 
 
@@ -461,4 +338,39 @@ void CLocalVideoTranscodingDlg::OnSelchangeComboCameras()
 	// Get camera information
 	collections->getDevice(sel, deviceName, deviceId);
 	(*videoDeviceManager)->setDevice(deviceId);
+}
+
+LRESULT CLocalVideoTranscodingDlg::OnEIDConnectionStateChanged(WPARAM wParam, LPARAM lParam)
+{
+	CONNECTION_CHANGED_REASON_TYPE reason = (CONNECTION_CHANGED_REASON_TYPE)wParam;
+	if (reason == CONNECTION_CHANGED_INVALID_TOKEN || reason == CONNECTION_CHANGED_TOKEN_EXPIRED ||
+		reason == CONNECTION_CHANGED_INVALID_CHANNEL_NAME || reason == CONNECTION_CHANGED_REJECTED_BY_SERVER ||
+		reason == CONNECTION_CHANGED_INVALID_APP_ID) {
+
+		CString info = _T("");
+		switch (reason)
+		{
+		case CONNECTION_CHANGED_INVALID_TOKEN:
+		case CONNECTION_CHANGED_INVALID_APP_ID:
+			info = invalidTokenlError;
+			break;
+		case CONNECTION_CHANGED_TOKEN_EXPIRED:
+			info = invalidTokenExpiredError;
+			break;
+		case CONNECTION_CHANGED_INVALID_CHANNEL_NAME:
+			info = invalidChannelError;
+			break;
+		case CONNECTION_CHANGED_REJECTED_BY_SERVER:
+			info = refusedByServer;
+			break;
+		default:
+			break;
+		}
+
+		if (!info.IsEmpty())
+			m_lstInfo.InsertString(m_lstInfo.GetCount(), info);
+
+		m_btnJoinChannel.EnableWindow(TRUE);
+	}
+	return 0;
 }

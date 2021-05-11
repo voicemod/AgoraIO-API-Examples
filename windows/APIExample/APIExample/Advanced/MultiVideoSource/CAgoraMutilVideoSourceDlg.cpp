@@ -87,7 +87,7 @@ bool CAgoraMutilVideoSourceDlg::InitAgora()
 	//enable video in the engine.
 	m_rtcEngine->enableVideo();
 	m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("enable video"));
-	
+
 	m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("live broadcasting"));
 	//set client role in the engine to the CLIENT_ROLE_BROADCASTER.
 	m_rtcEngine->setClientRole(agora::rtc::CLIENT_ROLE_BROADCASTER);
@@ -130,7 +130,7 @@ void CAgoraMutilVideoSourceDlg::RenderLocalVideo()
 		canvas.sourceType = VIDEO_SOURCE_CAMERA_PRIMARY;
 		//setup local video in the engine to canvas.
 		m_rtcEngine->setupLocalVideo(canvas);
-		
+
 		m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("setupLocalVideo"));
 	}
 }
@@ -237,9 +237,9 @@ void CAgoraMutilVideoSourceDlg::OnBnClickedButtonJoinchannel()
 		optionsCamera.publishScreenTrack = false;
 		optionsCamera.clientRoleType = CLIENT_ROLE_BROADCASTER;
 		m_rtcEngine->startPreview();
-		
+
 		//join channel in the engine.
-		if (0 == m_rtcEngine->joinChannel(APP_TOKEN, szChannelId.data(), 0, optionsCamera)) {
+		if (0 == m_rtcEngine->joinChannel(GET_APP_TOKEN, szChannelId.data(), 0, optionsCamera)) {
 			//strInfo.Format(_T("join channel %s"), strChannelName);
 			m_btnJoinChannel.EnableWindow(FALSE);
 			m_conn_camera = DEFAULT_CONNECTION_ID;
@@ -255,7 +255,7 @@ void CAgoraMutilVideoSourceDlg::OnBnClickedButtonJoinchannel()
 		p->SetChannelId(m_vecVidoeSourceEventHandler.size());
 		p->SetMsgReceiver(GetSafeHwnd());
 		m_vecVidoeSourceEventHandler.push_back(p);
-		if (0 == m_rtcEngine->joinChannelEx(APP_TOKEN, m_strChannel.c_str(), 0, options, p, &conn_id))
+		if (0 == m_rtcEngine->joinChannelEx(GET_APP_TOKEN, m_strChannel.c_str(), 0, options, p, &conn_id))
 		{
 			m_conn_screen = conn_id;
 			p->SetConnectionId(conn_id);
@@ -306,7 +306,7 @@ void CAgoraMutilVideoSourceDlg::OnBnClickedButtonPublish()
 		m_btnPublish.SetWindowText(MultiVideoSourceCtrlPublish);
 		m_videoWnds[1].Invalidate();
 
-	}	
+	}
 	m_bPublishScreen = !m_bPublishScreen;
 }
 

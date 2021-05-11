@@ -9,6 +9,8 @@ BEGIN_MESSAGE_MAP(CAgoraCaptureVideoDlg, CDialogEx)
 	ON_MESSAGE(WM_MSGID(EID_USER_JOINED), &CAgoraCaptureVideoDlg::OnEIDUserJoined)
 	ON_MESSAGE(WM_MSGID(EID_USER_OFFLINE), &CAgoraCaptureVideoDlg::OnEIDUserOffline)
 	ON_MESSAGE(WM_MSGID(EID_REMOTE_VIDEO_STATE_CHANED), &CAgoraCaptureVideoDlg::OnEIDRemoteVideoStateChanged)
+	ON_MESSAGE(WM_MSGID(EID_CONNECTION_STATE_CHANGED), &CAgoraCaptureVideoDlg::OnEIDConnectionStateChanged)
+
 	ON_BN_CLICKED(IDC_BUTTON_START_CAPUTRE, &CAgoraCaptureVideoDlg::OnClickedButtonStartCaputre)
 	ON_BN_CLICKED(IDC_BUTTON_JOINCHANNEL, &CAgoraCaptureVideoDlg::OnClickedButtonJoinchannel)
 	ON_CBN_SELCHANGE(IDC_COMBO_CAPTURE_VIDEO_DEVICE, &CAgoraCaptureVideoDlg::OnSelchangeComboCaptureVideoDevice)
@@ -91,21 +93,20 @@ bool CAgoraCaptureVideoDlg::InitAgora()
 	std::string strAppID = GET_APP_ID;
 	context.appId = strAppID.c_str();
 	context.eventHandler = &m_eventHandler;
-	//set channel profile in the engine to the CHANNEL_PROFILE_LIVE_BROADCASTING.
-	context.channelProfile = CHANNEL_PROFILE_LIVE_BROADCASTING;
 	//initialize the Agora RTC engine context.
 	int ret = m_rtcEngine->initialize(context);
 	if (ret != 0) {
 		m_initialize = false;
 		CString strInfo;
-		strInfo.Format(_T("initialize failed: %d"), ret);
+		if (ret == -101) m_lstInfo.InsertString(m_lstInfo.GetCount(), InvalidAppidError); strInfo.Format(_T("initialize failed: %d"), ret);
 		m_lstInfo.InsertString(m_lstInfo.GetCount(), strInfo);
 		return false;
 	}
 	else
 		m_initialize = true;
 	m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("initialize success"));
-	
+	//set channel profile in the engine to the CHANNEL_PROFILE_LIVE_BROADCASTING.
+	m_rtcEngine->setChannelProfile(CHANNEL_PROFILE_LIVE_BROADCASTING);
 	m_lstInfo.InsertString(m_lstInfo.GetCount(), _T("live broadcasting"));
 	//set client role in the engine to the CLIENT_ROLE_BROADCASTER.
 	m_rtcEngine->setClientRole(CLIENT_ROLE_BROADCASTER);
@@ -406,7 +407,7 @@ void CAgoraCaptureVideoDlg::OnClickedButtonJoinchannel()
 		}
 		std::string szChannelId = cs2utf8(strChannelName);
 		//join channel in the engine.
-		if (0 == m_rtcEngine->joinChannel(APP_TOKEN, szChannelId.c_str(), "", 0)) {
+		if (0 == m_rtcEngine->joinChannel(GET_APP_TOKEN, szChannelId.c_str(), "", 0)) {
 			strInfo.Format(_T("join channel %s"), getCurrentTime());
 			m_btnJoinChannel.EnableWindow(FALSE);
 		}
@@ -584,8 +585,40 @@ void CAgoraCaptureVideoDlg::OnSelchangeComboCaptureVideoDevice()
 	m_cmbVideoType.SetCurSel(0);
 }
 
+LRESULT CAgoraCaptureVideoDlg::OnEIDConnectionStateChanged(WPARAM wParam, LPARAM lParam)
+{
+	CONNECTION_CHANGED_REASON_TYPE reason = (CONNECTION_CHANGED_REASON_TYPE)wParam;
+	if (reason == CONNECTION_CHANGED_INVALID_TOKEN || reason == CONNECTION_CHANGED_TOKEN_EXPIRED ||
+		reason == CONNECTION_CHANGED_INVALID_CHANNEL_NAME || reason == CONNECTION_CHANGED_REJECTED_BY_SERVER ||
+		reason == CONNECTION_CHANGED_INVALID_APP_ID) {
 
+		CString info = _T("");
+		switch (reason)
+		{
+		case CONNECTION_CHANGED_INVALID_TOKEN:
+		case CONNECTION_CHANGED_INVALID_APP_ID:
+			info = invalidTokenlError;
+			break;
+		case CONNECTION_CHANGED_TOKEN_EXPIRED:
+			info = invalidTokenExpiredError;
+			break;
+		case CONNECTION_CHANGED_INVALID_CHANNEL_NAME:
+			info = invalidChannelError;
+			break;
+		case CONNECTION_CHANGED_REJECTED_BY_SERVER:
+			info = refusedByServer;
+			break;
+		default:
+			break;
+		}
 
+		if (!info.IsEmpty())
+			m_lstInfo.InsertString(m_lstInfo.GetCount(), info);
+
+		m_btnJoinChannel.EnableWindow(TRUE);
+	}
+	return 0;
+}
 
 
 /*
