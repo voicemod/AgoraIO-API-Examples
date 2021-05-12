@@ -284,11 +284,6 @@ void CAgoraMutilVideoSourceDlg::OnBnClickedButtonPublish()
 		options.publishCameraTrack = false;
 		options.clientRoleType = CLIENT_ROLE_BROADCASTER;
 		m_rtcEngine->updateChannelMediaOptions(options, m_conn_screen);
-		m_rtcEngine->startPreview();
-		VideoCanvas canvas;
-		canvas.uid = 0;
-		canvas.view = m_videoWnds[1].GetSafeHwnd();
-		m_rtcEngine->setupLocalVideo(canvas);
 		m_btnPublish.SetWindowText(MultiVideoSourceCtrlUnPublish);
 	}
 	else {
