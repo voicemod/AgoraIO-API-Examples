@@ -73,7 +73,6 @@ class SampleHandler: RPBroadcastSampleHandler {
                 AgoraUploader.sendAudioAppBuffer(sampleBuffer)
                 break
             case .audioMic:
-                AgoraUploader.sendAudioMicBuffer(sampleBuffer)
                 break
             @unknown default:
                 break

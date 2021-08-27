@@ -9,6 +9,7 @@
 import Foundation
 import CoreMedia
 import ReplayKit
+import AgoraRtcKit
 
 class AgoraUploader {
     private static let videoDimension : CGSize = {
@@ -25,7 +26,7 @@ class AgoraUploader {
         return boundingSize
     }()
     
-    private static let audioSampleRate: UInt = 48000
+    private static let audioSampleRate: UInt = 44100
     private static let audioChannels: UInt = 2
     
     private static let sharedAgoraEngine: AgoraRtcEngineKit = {
@@ -36,21 +37,13 @@ class AgoraUploader {
         kit.enableVideo()
         kit.setExternalVideoSource(true, useTexture: true, pushMode: true)
         let videoConfig = AgoraVideoEncoderConfiguration(size: videoDimension,
-                                                         frameRate: .fps24,
+                                                         frameRate: .fps15,
                                                          bitrate: AgoraVideoBitrateStandard,
                                                          orientationMode: .adaptative)
         kit.setVideoEncoderConfiguration(videoConfig)
-        
-        kit.setAudioProfile(.musicStandardStereo, scenario: .default)
-        AgoraAudioProcessing.registerAudioPreprocessing(kit)
-        kit.setRecordingAudioFrameParametersWithSampleRate(Int(audioSampleRate),
-                                                           channel: Int(audioChannels),
-                                                           mode: .readWrite,
-                                                           samplesPerCall: 1024)
-        kit.setParameters("{\"che.audio.external_device\":true}")
+        kit.enableExternalAudioSource(withSampleRate: audioSampleRate, channelsPerFrame: audioChannels)
         kit.setParameters("{\"che.hardware_encoding\":1}")
         kit.setParameters("{\"che.video.enc_auto_adjust\":0}")
-        
         kit.muteAllRemoteVideoStreams(true)
         kit.muteAllRemoteAudioStreams(true)
         
@@ -91,17 +84,8 @@ class AgoraUploader {
     }
     
     static func sendAudioAppBuffer(_ sampleBuffer: CMSampleBuffer) {
-        AgoraAudioTube.agoraKit(sharedAgoraEngine,
-                                pushAudioCMSampleBuffer: sampleBuffer,
-                                resampleRate: audioSampleRate,
-                                type: .app)
-    }
-    
-    static func sendAudioMicBuffer(_ sampleBuffer: CMSampleBuffer) {
-        AgoraAudioTube.agoraKit(sharedAgoraEngine,
-                                pushAudioCMSampleBuffer: sampleBuffer,
-                                resampleRate: audioSampleRate,
-                                type: .mic)
+        let ret = sharedAgoraEngine.pushExternalAudioFrameSampleBuffer(sampleBuffer)
+        print ("send audio buffer \(ret)")
     }
     
     static func stopBroadcast() {
