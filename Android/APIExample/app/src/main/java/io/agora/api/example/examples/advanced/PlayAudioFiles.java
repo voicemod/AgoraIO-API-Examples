@@ -228,7 +228,7 @@ public class PlayAudioFiles extends BaseFragment implements View.OnClickListener
         else if(v.getId() == R.id.bgmStart)
         {
             engine.startAudioMixing(Constant.MIX_FILE_PATH, false, false, -1, 0);
-            String timeString = new SimpleDateFormat("mm:ss").format(engine.getAudioMixingDuration(Constant.MIX_FILE_PATH));
+            String timeString = new SimpleDateFormat("mm:ss").format(engine.getAudioMixingDuration());
             progressText.setText(timeString);
             startProgressTimer();
         }
