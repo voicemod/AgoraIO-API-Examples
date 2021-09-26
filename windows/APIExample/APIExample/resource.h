@@ -180,6 +180,8 @@
 #define IDC_STATIC_ENCRYPT_KEY          1089
 #define IDC_BUTTON2                     1089
 #define IDC_BUTTON_ENCODED_AUDIO        1089
+#define IDC_EDIT_LOOPCOUNT              1090
+#define IDC_EDIT_COUNT                  1091
 #define IDC_STATIC_AUDIO_EFFECT_PATH    1092
 #define IDC_EDIT_AUDIO_EFFECT_PATH      1093
 #define IDC_SPIN1                       1094
@@ -271,7 +273,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        136
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1090
+#define _APS_NEXT_CONTROL_VALUE         1092
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

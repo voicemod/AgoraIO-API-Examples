@@ -251,4 +251,5 @@ public:
 	afx_msg void OnSelchangeListInfoBroadcasting();
 	afx_msg void OnDestroy();
 	afx_msg void OnReleasedcaptureSliderVideo(NMHDR *pNMHDR, LRESULT *pResult);
+	CEdit m_edtCount;
 };

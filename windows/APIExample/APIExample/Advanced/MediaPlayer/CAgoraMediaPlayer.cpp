@@ -33,6 +33,7 @@ void CAgoraMediaPlayer::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BUTTON_PUBLISH_VIDEO, m_btnPublishVideo);
 	
 	DDX_Control(pDX, IDC_SLIDER_VIDEO, m_sldVideo);
+	DDX_Control(pDX, IDC_EDIT_COUNT, m_edtCount);
 }
 
 
@@ -266,6 +267,8 @@ void CAgoraMediaPlayer::OnBnClickedButtonJoinchannel()
 //open button click handler.
 void CAgoraMediaPlayer::OnBnClickedButtonOpen()
 {
+	if (!m_mediaPlayer)
+		return;
 	CString strUrl;
 	CString strInfo;
 	m_edtVideoSource.GetWindowText(strUrl);
@@ -312,6 +315,10 @@ void CAgoraMediaPlayer::OnBnClickedButtonStop()
 // play button click handler.
 void CAgoraMediaPlayer::OnBnClickedButtonPlay()
 {
+	CString strCount;
+	m_edtCount.GetWindowText(strCount);
+	int loopcount = _ttoi(strCount.GetBuffer(0));
+	m_mediaPlayer->setLoopCount(loopcount);
 	int ret;
 	switch (m_mediaPlayerState)
 	{
