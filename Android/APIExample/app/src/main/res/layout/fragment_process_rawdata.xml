@@ -12,6 +12,8 @@
         android:layout_height="match_parent"
         android:layout_above="@+id/ll_join" />
 
+    <include layout="@layout/voice_selector" />
+
     <FrameLayout
         android:id="@+id/fl_remote"
         android:layout_width="150dp"

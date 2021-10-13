@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.util.Log;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +20,10 @@ import io.agora.api.component.Constant;
 import io.agora.api.example.annotation.Example;
 import io.agora.api.example.common.model.ExampleBean;
 
+import net.voicemod.android.usdk.VoicemodUSDK;
+import net.voicemod.android.usdk.VoicemodUSDKException;
+import net.voicemod.android.usdk.VoiceQuality;
+
 /**
  * @author cjw
  */
@@ -29,6 +35,12 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        try {
+            VoicemodUSDK.initSDK(this.getApplication(), getString(R.string.voicemod_client_key));
+            VoicemodUSDK.setVoiceQuality(VoiceQuality.MEDIUM);
+        } catch (VoicemodUSDKException e) {
+            e.printStackTrace();
+        }
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
@@ -62,5 +74,15 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
             startActivity(new Intent(this, SettingActivity.class));
         }
         return false;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        try {
+            VoicemodUSDK.destroySDK();
+        } catch (VoicemodUSDKException e) {
+            e.printStackTrace();
+        }
     }
 }

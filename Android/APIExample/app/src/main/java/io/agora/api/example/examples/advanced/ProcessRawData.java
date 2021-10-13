@@ -44,6 +44,8 @@ import static io.agora.rtc.video.VideoEncoderConfiguration.ORIENTATION_MODE.ORIE
 import static io.agora.rtc.video.VideoEncoderConfiguration.STANDARD_BITRATE;
 import static io.agora.rtc.video.VideoEncoderConfiguration.VD_640x360;
 
+import net.voicemod.agora.VoicemodAudioFrameObserver;
+
 @Example(
         index = 10,
         group = ADVANCED,
@@ -62,6 +64,9 @@ public class ProcessRawData extends BaseFragment implements View.OnClickListener
     private int myUid;
     private boolean joined = false, blur = true;
     private MediaDataObserverPlugin mediaDataObserverPlugin;
+
+    private final VoicemodAudioFrameObserver voicemodObserver
+            = new VoicemodAudioFrameObserver();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -103,6 +108,7 @@ public class ProcessRawData extends BaseFragment implements View.OnClickListener
         blurBtn.setOnClickListener(this);
         fl_local = view.findViewById(R.id.fl_local);
         fl_remote = view.findViewById(R.id.fl_remote);
+        voicemodObserver.setVoiceControls(view);
     }
 
     @Override
@@ -112,6 +118,10 @@ public class ProcessRawData extends BaseFragment implements View.OnClickListener
         MediaPreProcessing.setCallback(mediaDataObserverPlugin);
         MediaPreProcessing.setVideoCaptureByteBuffer(mediaDataObserverPlugin.byteBufferCapture);
         mediaDataObserverPlugin.addVideoObserver(this);
+        Context context = getContext();
+        if (context != null) {
+            voicemodObserver.configureVoiceControls(context);
+        }
     }
 
     @Override
@@ -278,6 +288,7 @@ public class ProcessRawData extends BaseFragment implements View.OnClickListener
         }
         // Prevent repeated entry
         join.setEnabled(false);
+        engine.registerAudioFrameObserver(voicemodObserver);
     }
 
     /**
@@ -327,6 +338,7 @@ public class ProcessRawData extends BaseFragment implements View.OnClickListener
                 public void run() {
                     join.setEnabled(true);
                     join.setText(getString(R.string.leave));
+                    voicemodObserver.setEnabled(true);
                 }
             });
         }

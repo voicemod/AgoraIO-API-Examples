@@ -140,4 +140,5 @@
     <string name="effect_control">音效控制</string>
     <string name="audio_effects_vol">音效音量</string>
     <string name="mixing_audio">混音</string>
+    <string name="voicemod_enabled">Voicemod</string>
 </resources>

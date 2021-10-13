@@ -2,4 +2,5 @@
 <resources>
     <string name="agora_app_id" translatable="false">YOUR APP ID</string>
     <string name="agora_access_token" translatable="false">YOUR ACCESS TOKEN</string>
+    <string name="voicemod_client_key" translatable="false">YOUR_CLIENT_KEY</string>
 </resources>

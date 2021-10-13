@@ -6,6 +6,8 @@
     android:fitsSystemWindows="true"
     tools:context=".examples.basic.JoinChannelAudio">
 
+    <include layout="@layout/voice_selector"/>
+
     <Switch
         android:id="@+id/audioWriteBack"
         android:layout_width="wrap_content"

@@ -10,6 +10,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
+import net.voicemod.agora.VoicemodAudioFrameObserver;
+import net.voicemod.android.usdk.VoicemodUSDK;
+import net.voicemod.android.usdk.VoicemodUSDKException;
+
 public class BaseFragment extends Fragment
 {
     protected Handler handler;
@@ -19,6 +23,23 @@ public class BaseFragment extends Fragment
     {
         super.onCreate(savedInstanceState);
         handler = new Handler(Looper.getMainLooper());
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        VoicemodUSDK.startEngine();
+        try {
+            VoicemodUSDK.loadVoice(VoicemodAudioFrameObserver.currentVoice);
+        } catch (VoicemodUSDKException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        VoicemodUSDK.stopEngine();
     }
 
     protected void showAlert(String message)

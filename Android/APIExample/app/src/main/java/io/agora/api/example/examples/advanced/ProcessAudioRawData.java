@@ -38,6 +38,8 @@ import io.agora.rtc.models.ChannelMediaOptions;
 import static io.agora.api.example.common.model.Examples.ADVANCED;
 import static io.agora.rtc.IRtcEngineEventHandler.ClientRole.CLIENT_ROLE_BROADCASTER;
 
+import net.voicemod.agora.VoicemodAudioFrameObserver;
+
 /**
  * This demo demonstrates how to make a one-to-one voice call
  *
@@ -66,6 +68,9 @@ public class ProcessAudioRawData extends BaseFragment implements View.OnClickLis
     private static final String AUDIO_FILE = "output.raw";
     private InputStream inputStream;
 
+    private final VoicemodAudioFrameObserver voicemodObserver
+            = new VoicemodAudioFrameObserver(SAMPLE_RATE, SAMPLE_NUM_OF_CHANNEL, SAMPLES_PER_CALL);
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,6 +96,7 @@ public class ProcessAudioRawData extends BaseFragment implements View.OnClickLis
         speaker.setOnClickListener(this);
         writeBackAudio = view.findViewById(R.id.audioWriteBack);
         writeBackAudio.setOnCheckedChangeListener(this);
+        voicemodObserver.setVoiceControls(view);
     }
 
     @Override
@@ -101,6 +107,7 @@ public class ProcessAudioRawData extends BaseFragment implements View.OnClickLis
         if (context == null) {
             return;
         }
+        voicemodObserver.configureVoiceControls(context);
         try {
             /**Creates an RtcEngine instance.
              * @param context The context of Android Activity
@@ -278,6 +285,7 @@ public class ProcessAudioRawData extends BaseFragment implements View.OnClickLis
          * - < 0: Failure.
          */
         engine.registerAudioFrameObserver(audioFrameObserver);
+        engine.registerAudioFrameObserver(voicemodObserver);
     }
 
     /**
@@ -331,6 +339,7 @@ public class ProcessAudioRawData extends BaseFragment implements View.OnClickLis
                     join.setEnabled(true);
                     join.setText(getString(R.string.leave));
                     writeBackAudio.setEnabled(true);
+                    voicemodObserver.setEnabled(true);
                 }
             });
         }
