@@ -1,14 +1,12 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 31
     flavorDimensions "default"
 
     defaultConfig {
-        minSdkVersion 18
-        targetSdkVersion 26
-        versionCode 5
-        versionName "1.0"
+        minSdkVersion 21
+        targetSdkVersion 31
         externalNativeBuild {
             cmake {
                 cppFlags "-std=c++11 "
